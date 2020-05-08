@@ -1,0 +1,18 @@
+-top         0O.lig.gas.leap.prmtop
+-atm         :*@*
+-r           11 8 7
+#-wd          ${wdir}
+-out         output_inr_dfs_11-8-7.log
+-info        info_inr_dfs_11-8-7.info
+-tree        tree_inr_dfs_11-8-7.txt
+# a comment line
+-trajin      0O.lig-s500.dcd
+-trajout     0O.lig-s500_dfs_11-8-7_bat.nc
+-dskip       10
+-osf         subset_inr_dfs_11-8-7.txt
+-onfp        neigh_inr_dfs_11-8-7
+-cut         6 
+-bo          2
+-ao          2
+-to          2
+

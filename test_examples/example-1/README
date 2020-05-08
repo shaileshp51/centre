@@ -1,0 +1,63 @@
+This example is of a 36-residue peptide. The peptide is system is 
+prepared and simulated using Amber MD simulation package.
+
+This directory as two files initially
+  1. The structure file
+     * 0O.lig.gas.leap.prmtop
+  2. A trajectory file, which contains 1000 frames.
+     * 0O.lig-s500.nc 
+Before being able to use CENTRE tools for computing configurational
+entropy using MIE/MIST or A-MIE/A-MIST methods, this trajectory has
+to be converted to a BAT trajectory for this we will use
+cart2bat.py script packages with `pycentre` python package
+all the possible arguments and their purpose can be found by running
+
+cart2bat.py --help
+
+One can use the cart2bat.inp file containing list of argument and 
+associated values. To start the trajectory conversion use:
+
+cart2bat.py @cart2bat.inp > cart2bat.out 2> cart2bat.err
+
+After successfull completion of the run following files will be created.
+	* 0O.lig-s500_dfs_11-8-7_bat.nc
+	* info_inr_dfs_11-8-7.info
+	* neigh_inr_dfs_11-8-7_6.txt
+	* output_inr_dfs_11-8-7.log
+	* subset_inr_dfs_11-8-7.txt
+	* tree_inr_dfs_11-8-7.txt
+
+Now let us make a directory and copy/move relevant files to it for entropy
+computation using centre. Let us also make a direcory for centre output 
+files created during the run.In case directories are missing.
+
+mkdir -p inpfiles outfiles
+
+mv 0O.lig-s500_dfs_11-8-7_bat.nc tree_inr_dfs_11-8-7.txt subset_inr_dfs_11-8-7.txt neigh_inr_dfs_11-8-7_*.txt inpfiles/
+
+Now lets change directory to inpfiles, and get the absolute paths for
+inpfiles and outfiles. Copy these paths to centre-inp.cfg file before
+running centre.
+
+There are two different build options, one creates a OpenMP parallel
+executable which utilized the thread based parallelism the executable
+will be:
+centre_OMP
+
+second is MPI+OMP hybrid build, the executable will be:
+centre_MPIOMP
+
+Lets assume  we want to use 2 threads for computations using centre_OMP 
+then we need to do as below:
+
+export OMP_NUM_THREADS=2
+/path/to/centre/bin/centre_OMP -i centre-inp.cfg > centre-inp.out 2> centre-inp.err &
+
+After completion of successfull run the entropy convergance will be reported in MIE*.csv
+MIST*.csv if MIST method is chosen otherwise only MIE*.csv. All the values reported are 
+unitless to convert to kcal/mol or kJ/mol, R*T Gas_Constant*Tempeteture in appropriate 
+units has to multiplied to the values in report file.
+
+
+ 
+

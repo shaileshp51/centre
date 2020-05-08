@@ -1,0 +1,16 @@
+ TaskSet     State          Started On    AvgTimeTask    ElapsedTime   DoneTasks  TotalTasks Done[%] ExpcTimeLeft
+Discrete Completed 2020-05-05 19:37:18         0.000s         0.452s        1563        1563  100.00           0s
+     BND Completed 2020-05-05 19:37:18         0.000s         0.169s         522         522  100.00           0s
+     ANG Completed 2020-05-05 19:37:18         0.000s         0.091s         521         521  100.00           0s
+     DIH Completed 2020-05-05 19:37:18         0.000s         0.186s         520         520  100.00           0s
+ Entropy Completed 2020-05-05 19:37:18         0.000s        19.066s       70117       70117  100.00           0s
+  BND-1D Completed 2020-05-05 19:37:18         0.000s         0.031s         259         259  100.00           0s
+  ANG-1D Completed 2020-05-05 19:37:18         0.000s         0.029s         258         258  100.00           0s
+  DIH-1D Completed 2020-05-05 19:37:18         0.000s         0.058s         520         520  100.00           0s
+  B/B-2D Completed 2020-05-05 19:37:19         0.000s         1.022s        3440        3440  100.00           0s
+  A/A-2D Completed 2020-05-05 19:37:20         0.000s         1.295s        4294        4294  100.00           0s
+  D/D-2D Completed 2020-05-05 19:37:21         0.000s         4.970s       18648       18648  100.00           0s
+  B/A-2D Completed 2020-05-05 19:37:26         0.000s         2.299s        7988        7988  100.00           0s
+  B/D-2D Completed 2020-05-05 19:37:28         0.000s         4.528s       16461       16461  100.00           0s
+  A/D-2D Completed 2020-05-05 19:37:33         0.000s         4.822s       18249       18249  100.00           0s
+

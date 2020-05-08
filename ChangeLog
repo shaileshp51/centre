@@ -1,0 +1,9 @@
+
+
+19 Dec 2018 18:00
+-- changed NeighbourDOFs to read DFFs having neighbors only, earlier all DOFs were being reads
+-- In B/B, B/A, B/D, A/A, A/D
+   data caching for rows now guided using neighbor-keys of the first DOF type in pair,
+   earlier number of effective n_bnd_eff were used and causing bug.
+29 Aug 2017 19:55
+--included -i option for input.cfg and -O for overwritting files in outfilepath
