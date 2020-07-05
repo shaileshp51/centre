@@ -93,7 +93,7 @@ void EntropyCalculator::run1d_mpi(BAT_t bat_type, const int rank,
 
 		ull_int nfrm_eff_entropy = 0;
 
-		if (isWritefreq && (frqWriteset & bat_type)) {
+		if (isWritefreq && (frqWriteset & curr_batset)) {
 			ptr_hist_d1d->NC_create(
 					(str_dim_type + string("-1D histograms")).c_str());
 		}
@@ -379,7 +379,7 @@ void EntropyCalculator::run1d_mpi(BAT_t bat_type, const int rank,
 					const u_int dim_id = inputs.getSubset().getBATTypeId(
 							bat_type,
 							bl_strat_id + n_prepared2write_curr_block);
-					if (isWritefreq && (frqWriteset & BATSet::B1D)) {
+					if (isWritefreq && (frqWriteset & curr_batset)) {
 						bingrp_v[idx].setId(dim_id);
 						bingrp_v[idx].setExtremes(d1ds_extrm_v[idx]);
 						bingrp_v[idx].setBinMids(0, bin_schemes_sum,
