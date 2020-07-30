@@ -1,9 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 #include <vector>
 #include <cmath>
 #include <cstddef>
@@ -34,10 +28,6 @@ int Real2Int::bndReal2Int(const u_int id,
 		const std::vector<hbin_t> &bin_schemes, const std::vector<data_t> &data,
 		double *min_d, double *max_d, double *avg_d,
 		std::vector<hbin_t> &data_int) {
-	/**
-	 * Converts the double precision bond lengths to an integer array
-	 * indicating bin which containes bond snapshot.
-	 */
 
 	if (data.size() * bin_schemes.size() != data_int.size()) {
 		return -1;
@@ -46,11 +36,6 @@ int Real2Int::bndReal2Int(const u_int id,
 	double min_data = 1.0e100, max_data = -1.0e100, avg_data = 0.0, sum_data =
 			0.0;
 	double bin_width = 0;
-	/**
-	 * Start by computing the sum of each bond degree of freedom for the
-	 * average, For each bond, compute the bin width based on the number of bins and
-	 * the bond extrema .
-	 */
 
 	for (size_t i = 0; i < data.size(); ++i) {
 		sum_data += data[i];
@@ -92,10 +77,6 @@ int Real2Int::bndReal2Int(const u_int id,
 		const std::vector<ull_int> &rand_indices,
 		const std::vector<data_t> &data, double *min_d, double *max_d,
 		double *avg_d, std::vector<hbin_t> &data_int) {
-	/**
-	 * Converts the double precision bond lengths to an integer array
-	 * indicating correct bin location.
-	 */
 
 	if (data.size() * bin_schemes.size() != data_int.size()
 			|| data_int.size() != rand_indices.size()) {
@@ -106,11 +87,6 @@ int Real2Int::bndReal2Int(const u_int id,
 	double min_data = 1.0e100, max_data = -1.0e100, avg_data = 0.0, sum_data =
 			0.0;
 	double bin_width = 0;
-	/**
-	 * Start by computing the sum of each bond degree of freedom for the
-	 * average For each bond, compute the bin width based on the number of bins and
-	 * the bond extrema .
-	 */
 
 	for (size_t i = 0; i < data.size(); ++i) {
 		sum_data += data[i];
@@ -156,11 +132,6 @@ int Real2Int::angReal2Int(const u_int id,
 		const std::vector<hbin_t> &bin_schemes, const std::vector<data_t> &data,
 		double *min_d, double *max_d, double *avg_d,
 		std::vector<hbin_t> &data_int) {
-	/**
-	 * Converts the double precision bond lengths to an integer array
-	 * indicating bin which containes bond snapshot.
-	 */
-
 	if (data.size() * bin_schemes.size() != data_int.size()) {
 		return -1;
 	}
@@ -171,11 +142,6 @@ int Real2Int::angReal2Int(const u_int id,
 	double min_data = 1.0e100, max_data = -1.0e100, avg_data = 0.0, sum_data =
 			0.0;
 	double bin_width = 0;
-	/**
-	 * Start by computing the sum of each bond degree of freedom for the
-	 * average, For each bond, compute the bin width based on the number of bins and
-	 * the bond extrema .
-	 */
 
 	for (size_t i = 0; i < data.size(); ++i) {
 		sum_data += data[i];
@@ -232,12 +198,7 @@ int Real2Int::angReal2Int(const u_int id,
 	double bin_width = 0;
 	const double _PI = Constants::PI;
 	const double dx = DELTA_X_RANGE_EXTEND;
-	/**
-	 * Start by computing the sum of each bond degree of freedom for the
-	 * average For each bond, compute the bin width based on the number of bins and
-	 * the bond extrema .
-	 */
-
+	
 	for (size_t i = 0; i < data.size(); ++i) {
 		sum_data += data[i];
 		if (min_data > data[i]) {
@@ -290,11 +251,7 @@ int Real2Int::dihReal2Int(const u_int id,
 		return -1;
 	}
 	hbin_t nbins_max = bins_ref;
-//   for (size_t i = 0; i < bin_schemes.size(); ++i) {
-//      if (bin_schemes[i] > nbins_max) {
-//         nbins_max = bin_schemes[i];
-//      }
-//   }
+
 	const double _PI = Constants::PI;
 	const double _2PI = 2 * _PI;
 	const double dx = DELTA_X_RANGE_EXTEND;
@@ -307,7 +264,7 @@ int Real2Int::dihReal2Int(const u_int id,
 	double min_data1 = 1.0e100, max_data1 = -1.0e100;
 	double min_data2 = 1.0e100, max_data2 = -1.0e100;
 	double min_data3 = 1.0e100, max_data3 = -1.0e100;
-	double sum_data = 0.0, bin_width = 0.0, binsize = 0.0;
+	double sum_data = 0.0, binsize = 0.0; //bin_width = 0.0;
 
 	modfitnbins = ((3 * (int) nbins_max) > 180) ? 180 : (3 * (int) nbins_max);
 
@@ -331,9 +288,6 @@ int Real2Int::dihReal2Int(const u_int id,
 			data_int[i] = t1;
 		}
 
-		/***************************************************************
-		 * ModfitDih1D routines included here
-		 **************************************************************/
 		std::vector<ull_int> prob(modfitnbins, 0);
 		std::vector<double> bincenter(modfitnbins);
 		std::vector<bool> zerohist(2 * modfitnbins);
@@ -345,22 +299,9 @@ int Real2Int::dihReal2Int(const u_int id,
 		u_int countzerosrecord;
 		u_int firstzero;
 
-		// !
-		// ! Loop over the number of convergence steps.
-		// !
-		//
-		// assigning each dihedral to its bin.
-
 		for (ull_int i = 0; i < data.size(); i++) {
 			prob[data_int[i]]++;
 		}
-
-		//
-		//  Having determined the number of data points included in each bin, now we can estimate the
-		//  probability density.
-		//
-		//  Loop through the number of bins to "integrate" the probability density.
-		//
 
 		sumzerohist = 0;
 		for (int i = 0; i < modfitnbins; ++i) {
@@ -372,13 +313,13 @@ int Real2Int::dihReal2Int(const u_int id,
 				zerohist[i] = true;
 				sumzerohist++;
 			}
-			zerohist[modfitnbins + i] = false; // initialize duplicate of zerohist
+			zerohist[modfitnbins + i] = false; 
 		}
-		//
+		
 		// For the case when all histogram bins have some population:
 		// Set edge at minimum density
 		if (sumzerohist == 0) {
-			// Get minidx: index of bin with minimum density
+			// Find minidx: index of bin with minimum density
 			probrecord = prob[0];
 			minidx = 0;
 			for (int j = 1; j < modfitnbins; j++) {
@@ -388,21 +329,17 @@ int Real2Int::dihReal2Int(const u_int id,
 				}
 			}
 		} else {
-			// For the case where there are unoccupied bins: Set edge at
-			// the beginning of the largest unoccupied span
-			// Find first occurrence of an unoccupied bin
-			// (prob(j)==0) or (zerohist[j] == false)
 			int j = 0;
 			while ((zerohist[j] == false) && (j < modfitnbins)) {
 				++j;
 			}
 			minidx = j;
 			firstzero = j;
-			// Duplicate to cover edges in circular variable
+			
 			for (int k = 0; k < modfitnbins; k++) {
 				zerohist[k + modfitnbins] = zerohist[k];
 			}
-			// Find the largest stretch of unoccupied bins
+			// Search the largest stretch of unoccupied bins
 			countzeros = 0;
 			countzerosrecord = 0;
 			for (j = firstzero; j < 2 * modfitnbins; j++) {
@@ -417,30 +354,14 @@ int Real2Int::dihReal2Int(const u_int id,
 				}
 			}
 		}
-		// modfitdisplac holds the center of the histogram where the
-		// largest continuous unoccupied stretch begins, or where the
-		// minimum density occurs (for the case that all bins are occupied)
 		modfit_displac = _2PI - bincenter[minidx];
 	}
 
 	/**
-	 * Loop through all individual dihedral array binary files and read
-	 * each. First allocate the size of dvec read the dihedral arrays
-	 * find the current dihedral extrema mina/maxa holds normal range,
-	 * minb/maxb holds range of shifted distribution (by 180 deg) find
-	 * out the smaller of the 2 ranges
-	 */
-
-	/***************************************************************
-	 * DihExtrema calculation starts here
-	 **************************************************************/
-
-	/**
-	 * Find the smallest and largest value of each degree of freedom Then
+	 * Find the smallest and largest value of the degree of freedom Then
 	 * the range is shifted by pi and recomputed. This allows for narrow
 	 * distributions centered near 2pi to be better represented.
 	 */
-
 	for (size_t i = 0; i < data.size(); ++i) {
 		sum_data += data[i];
 		if (min_data1 > data[i]) {
@@ -496,10 +417,7 @@ int Real2Int::dihReal2Int(const u_int id,
 		std::cout << std::fixed << min_data3 << " " << std::fixed << max_data3 << std::endl;
 #endif
 	}
-	/**
-	 * Extend the dihedral extrema by 0.05 degrees and finish computing the
-	 * average
-	 */
+
 	min_data -= dx;
 	if (min_data < 0.0) {
 		min_data = 0.0;
@@ -520,11 +438,6 @@ int Real2Int::dihReal2Int(const u_int id,
 		avg_data = fmod((sum_data / data.size()) + modfit_displac, _2PI);
 	}
 
-	/**
-	 * Write the extrema for each dihdral. write the extrema information to
-	 * file convert dihedrals to integer vector Deallocate Array
-	 */
-
 	if (!optimize) {
 		*min_d = min_data;
 		*max_d = max_data;
@@ -538,13 +451,6 @@ int Real2Int::dihReal2Int(const u_int id,
 		*phase_d = modfit_displac;
 	}
 
-	/***************************************************************
-	 * DihExtrema calculation ends here
-	 **************************************************************/
-	/**
-	 * Converts the double precision dihedral values to an integer array
-	 * indicating bin which containers diherdal snapshot.
-	 */
 	for (size_t bidx = 0; bidx < bin_schemes.size(); ++bidx) {
 		hbin_t nbins_loc = bin_schemes[bidx];
 		ull_int offset = bidx * data.size();
@@ -578,22 +484,20 @@ int Real2Int::getMinimaPositions(const u_int id, bool analyticGrad,
 		std::vector<double> &minimum, hbin_t &found_mins,
 		std::vector<hbin_t> &data_int) {
 
-	double coordmaxs[9];    // Positions of the maximums in the PDF
-	double secderivmaxs[9] = { 0.0 }; // Positions of the maximums of the 2nd derivate of the (PDF)
+	double coordmaxs[9];   
+	double secderivmaxs[9] = { 0.0 }; 
 
-	double density[361];    // Probability Density Function (PDF)
-	double gradient[361];   // Gradient of the PDF
-	double secderiv[361];   // Second derivate of the PDF
-	double smoothingparam;  // Smoothing parameter (see ref. 2)
-	double vMgradient; // Gradient in a general position (not only in {0,...359})
-	double vMdensity;       // Density in a general position
-	double vMsec_deriv;     // Second derivate in a general position
+	double gradient[361];   
+	double secderiv[361];   
+	double smoothingparam;  
+	double vMgradient;      
+	double vMdensity;      
+	double vMsec_deriv;  
 
-	double step_times_grad;   //  Step x gradient
-	int n_obsmax;   //  Observed Number of Maximums
+	double step_times_grad;   
+	int n_obsmax;   
 
-	int contador;
-	int Itrs, m;
+	int Itrs; 
 	double temp;
 	bool Converged;
 	double grad;
@@ -609,29 +513,25 @@ int Real2Int::getMinimaPositions(const u_int id, bool analyticGrad,
 							* pow(Utils::modifiedBesselI(0, k_value), 2.0))),
 			(2.0 / 5.0));
 
-//
-// Calculating densities, gradient, second derivate
-// and looking for local maximums
-	n_obsmax = 0;   //    Observed Number of Maximums
+	// Calculating densities, gradient, second derivate for finding local maiximums
+	n_obsmax = 0;  
 	for (int i = 0; i <= 360; ++i) {
 		vonMises(smoothingparam, (i * Constants::DEGRAD), data, vMdensity,
 				vMgradient, vMsec_deriv);
 		gradient[i] = vMgradient;
-		density[i] = vMdensity;
 		secderiv[i] = vMsec_deriv;
 		if (i > 0) {
 			if (((gradient[i - 1] * gradient[i]) <= 0.0)
 					&& (vMsec_deriv < (-1.0e-4)) && (n_obsmax < 9)) {
-				coordmaxs[n_obsmax] = i / 2.0 + (i - 1) / 2.0; // Approximate coord of the maximum
+				coordmaxs[n_obsmax] = i / 2.0 + (i - 1) / 2.0; 
 				secderivmaxs[n_obsmax] = secderiv[i] / 2.0
-						+ secderiv[i - 1] / 2.0; //   Approximate second derivate
-				n_obsmax += 1; //
+						+ secderiv[i - 1] / 2.0; 
+				n_obsmax += 1; 
 			}
 		}
 	}
-	//
-	// Sorting to give preference to those maximums with
-	// lower(more negative) second derivate
+	
+	// Sorting to prioritize maximums with smaller(more negative) second derivate
 	for (int i = 0; i < n_obsmax - 1; ++i) {
 		for (int j = i + 1; j < n_obsmax; ++j) {
 			if (secderivmaxs[i] > secderivmaxs[j]) {
@@ -645,17 +545,13 @@ int Real2Int::getMinimaPositions(const u_int id, bool analyticGrad,
 		}
 	}
 
-// In a circular variable, the Max. number of minimums
-// most be equal to the Max. number of maximums, we get
-// the lowest value between the predefined MaxNumConf
-// and the observed number of maximums/minimums (ObsNmax)
 	if (n_conf_max < n_obsmax) {
 		found_mins = n_conf_max;
 	} else if (n_conf_max >= n_obsmax) {
 		found_mins = n_obsmax;
 	}
-//
-// Sorting only the first FNumMins using the coordinates
+
+    // Sorting only the first found_mins using the coordinates
 	for (int i = 0; i < found_mins - 1; ++i) {
 		for (int j = i + 1; j < found_mins; ++j) {
 			if (coordmaxs[i] > coordmaxs[j]) {
@@ -665,8 +561,8 @@ int Real2Int::getMinimaPositions(const u_int id, bool analyticGrad,
 			}
 		}
 	}
-//
-// Guessing where are the minimums
+
+    // Guessing positions of minimas
 	if (found_mins == 1) {
 		minimum[0] = (coordmaxs[0] - 180.0);
 		if (minimum[0] < 0.0) {
@@ -685,19 +581,18 @@ int Real2Int::getMinimaPositions(const u_int id, bool analyticGrad,
 			}
 		}
 	}
-//
-// Optimizing Minimums
+
 	if (found_mins > 1) {
 		for (int m = 0; m < found_mins; ++m) {
 			Itrs = 0;
 			Converged = false;
-			while ((!Converged) && (Itrs < max_iterations)) {
+			while ((!Converged) && (Itrs < (int)max_iterations)) {
 				Itrs = Itrs + 1;
 				if (analyticGrad) {
 					grad = calculateVonMisesGradient(smoothingparam,
 							Constants::DEGRAD * minimum[m], data);
 				} else {
-					//  !Gradient Linear interpolation
+					//  Gradient Linear interpolation
 					grad = (fabs(minimum[m] - 1 - int(minimum[m])))
 							* gradient[int(minimum[m])]
 							+ (fabs(minimum[m] - int(minimum[m]))
@@ -738,8 +633,7 @@ int Real2Int::getMinimaPositions(const u_int id, bool analyticGrad,
 		minimum[i] *= Constants::DEGRAD;
 	}
 
-	//-codify
-	for (int k = 0; k < NumSnap; ++k) {
+	for (ull_int k = 0; k < NumSnap; ++k) {
 		if (found_mins == 1) {
 			data_int[k] = 0;
 		} else {
@@ -809,7 +703,7 @@ double Real2Int::calculateVonMisesGradient(double SmoothingParam, double X,
 	ull_int n_data = ang.size();
 	double cos_of_X_minus_aj = 0.0;
 	double sin_of_X_minus_aj = 0.0;
-	for (int j = 0; j < n_data; ++j) {
+	for (ull_int j = 0; j < n_data; ++j) {
 		cos_of_X_minus_aj = cos(X - ang[j]);
 		sin_of_X_minus_aj = sqrt(1.0 - (cos_of_X_minus_aj * cos_of_X_minus_aj));
 

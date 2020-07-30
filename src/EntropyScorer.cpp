@@ -354,9 +354,16 @@ void EntropyScorer::run() {
 							ent_bnd2d->setupRead();
 						}
 
-						u_int nei_bb2d = inputs.getNeighbors().bondsSize();
+						//u_int nei_bb2d = inputs.getNeighbors().bondsSize();
 						vector<u_int> bndKeys;
 						inputs.getNeighbors().bondKeys(bndKeys);
+            /*
+            if (nei_bb2d != n_bnd2d) {
+              LOG_ERROR(
+                "B/B neighbors in neigh-list and file are unequal %d != %d",
+                nei_bb2d, n_bnd2d);
+            }
+            */
 
 						if (ent_bnd2d->readEntrContrib(0, n_bnd2d, estid, 1,
 								b_sch, 1, stp_id, 1, entropy_bbv) != 0) {
@@ -395,7 +402,7 @@ void EntropyScorer::run() {
 
 						sum_aa = sum_aa_mst;
 
-						double sum_aa_slv = 0.0;
+						//double sum_aa_slv = 0.0;
 					}
 
 					if (inputs.getEntropy().getWorkSet() & BATSet::DD2D) {
@@ -663,7 +670,7 @@ void EntropyScorer::run() {
 							}
 						}
 
-						bool isTreeBuild = false;
+						//bool isTreeBuild = false;
 						vector<Edge> mistree = boruvkaMST(graph);
 
 						ofstream treefile;

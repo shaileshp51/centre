@@ -86,6 +86,8 @@ POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
+build_triplet = @build@
+host_triplet = @host@
 @USE_OMPMPI_FALSE@bin_PROGRAMS = centre_OMP$(EXEEXT)
 @USE_OMPMPI_TRUE@bin_PROGRAMS = centre_OMPMPI$(EXEEXT)
 subdir = src
@@ -106,27 +108,26 @@ am__centre_OMP_SOURCES_DIST = Centre.cpp macrologger/macrologger.h \
 	main_common.h CentreStdio.h Convergence.h Netcdf_EntContri.h \
 	Netcdf_HistUtils.h Real2Int.h Utils.h configcentre.h \
 	CoordinateInfo.h Netcdf_BAT.cpp NetcdfFile.cpp \
-	Netcdf_TrjInt.cpp Timer.cpp Version.h Centre.h Inputs.h \
-	Constants.h Estimators.cpp Inputs.cpp Netcdf_BAT.h \
-	NetcdfFile.h Netcdf_TrjInt.h Timer.h CentreStdio.cpp \
-	Convergance.cpp Estimators.h CentreIException.h Discretizer.h \
+	Netcdf_TrjInt.cpp Version.h Centre.h Inputs.h Constants.h \
+	Estimators.cpp Inputs.cpp Netcdf_BAT.h NetcdfFile.h \
+	Netcdf_TrjInt.h Timer.h CentreStdio.cpp Convergance.cpp \
+	Estimators.h CentreIException.h Discretizer.h \
 	EntropyCalculator.h EntropyScorer.h Discretizer.cpp \
 	CentreIException.cpp Exceptions.h EntropyCalculator.cpp \
 	EntropyScorer.cpp Netcdf_EntContri.cpp Netcdf_HistUtils.cpp \
-	Real2Int.cpp Utils.cpp main_smp.cpp
+	Real2Int.cpp Utils.cpp main_common.cpp main_smp.cpp
 @USE_OMPMPI_FALSE@am_centre_OMP_OBJECTS = Centre.$(OBJEXT) \
 @USE_OMPMPI_FALSE@	Netcdf_BAT.$(OBJEXT) NetcdfFile.$(OBJEXT) \
-@USE_OMPMPI_FALSE@	Netcdf_TrjInt.$(OBJEXT) Timer.$(OBJEXT) \
-@USE_OMPMPI_FALSE@	Estimators.$(OBJEXT) Inputs.$(OBJEXT) \
-@USE_OMPMPI_FALSE@	CentreStdio.$(OBJEXT) Convergance.$(OBJEXT) \
-@USE_OMPMPI_FALSE@	Discretizer.$(OBJEXT) \
+@USE_OMPMPI_FALSE@	Netcdf_TrjInt.$(OBJEXT) Estimators.$(OBJEXT) \
+@USE_OMPMPI_FALSE@	Inputs.$(OBJEXT) CentreStdio.$(OBJEXT) \
+@USE_OMPMPI_FALSE@	Convergance.$(OBJEXT) Discretizer.$(OBJEXT) \
 @USE_OMPMPI_FALSE@	CentreIException.$(OBJEXT) \
 @USE_OMPMPI_FALSE@	EntropyCalculator.$(OBJEXT) \
 @USE_OMPMPI_FALSE@	EntropyScorer.$(OBJEXT) \
 @USE_OMPMPI_FALSE@	Netcdf_EntContri.$(OBJEXT) \
 @USE_OMPMPI_FALSE@	Netcdf_HistUtils.$(OBJEXT) \
 @USE_OMPMPI_FALSE@	Real2Int.$(OBJEXT) Utils.$(OBJEXT) \
-@USE_OMPMPI_FALSE@	main_smp.$(OBJEXT)
+@USE_OMPMPI_FALSE@	main_common.$(OBJEXT) main_smp.$(OBJEXT)
 centre_OMP_OBJECTS = $(am_centre_OMP_OBJECTS)
 centre_OMP_LDADD = $(LDADD)
 centre_OMP_DEPENDENCIES =
@@ -134,27 +135,28 @@ am__centre_OMPMPI_SOURCES_DIST = Centre.cpp main_common.h \
 	macrologger/macrologger.h CentreStdio.h Convergence.h \
 	Netcdf_EntContri.h Netcdf_HistUtils.h Real2Int.h Utils.h \
 	configcentre.h CoordinateInfo.h Netcdf_BAT.cpp NetcdfFile.cpp \
-	Netcdf_TrjInt.cpp Timer.cpp Version.h Centre.h Constants.h \
-	Inputs.h MpiCommTags.h Estimators.cpp Inputs.cpp Netcdf_BAT.h \
+	Netcdf_TrjInt.cpp Version.h Centre.h Constants.h Inputs.h \
+	MpiCommTags.h Estimators.cpp Inputs.cpp Netcdf_BAT.h \
 	NetcdfFile.h Netcdf_TrjInt.h Timer.h CentreStdio.cpp \
 	Convergance.cpp Estimators.h CentreIException.h \
 	CentreIException.cpp Discretizer.h Exceptions.h \
 	EntropyCalculator.h EntropyScorer.h Discretizer_mpi.cpp \
 	EntropyCalculator_mpi.cpp EntropyScorer.cpp \
 	Netcdf_EntContri.cpp Netcdf_HistUtils.cpp Real2Int.cpp \
-	Utils.cpp main_mpi.cpp
+	Utils.cpp main_common.cpp main_mpi.cpp
 @USE_OMPMPI_TRUE@am_centre_OMPMPI_OBJECTS = Centre.$(OBJEXT) \
 @USE_OMPMPI_TRUE@	Netcdf_BAT.$(OBJEXT) NetcdfFile.$(OBJEXT) \
-@USE_OMPMPI_TRUE@	Netcdf_TrjInt.$(OBJEXT) Timer.$(OBJEXT) \
-@USE_OMPMPI_TRUE@	Estimators.$(OBJEXT) Inputs.$(OBJEXT) \
-@USE_OMPMPI_TRUE@	CentreStdio.$(OBJEXT) Convergance.$(OBJEXT) \
+@USE_OMPMPI_TRUE@	Netcdf_TrjInt.$(OBJEXT) Estimators.$(OBJEXT) \
+@USE_OMPMPI_TRUE@	Inputs.$(OBJEXT) CentreStdio.$(OBJEXT) \
+@USE_OMPMPI_TRUE@	Convergance.$(OBJEXT) \
 @USE_OMPMPI_TRUE@	CentreIException.$(OBJEXT) \
 @USE_OMPMPI_TRUE@	Discretizer_mpi.$(OBJEXT) \
 @USE_OMPMPI_TRUE@	EntropyCalculator_mpi.$(OBJEXT) \
 @USE_OMPMPI_TRUE@	EntropyScorer.$(OBJEXT) \
 @USE_OMPMPI_TRUE@	Netcdf_EntContri.$(OBJEXT) \
 @USE_OMPMPI_TRUE@	Netcdf_HistUtils.$(OBJEXT) Real2Int.$(OBJEXT) \
-@USE_OMPMPI_TRUE@	Utils.$(OBJEXT) main_mpi.$(OBJEXT)
+@USE_OMPMPI_TRUE@	Utils.$(OBJEXT) main_common.$(OBJEXT) \
+@USE_OMPMPI_TRUE@	main_mpi.$(OBJEXT)
 centre_OMPMPI_OBJECTS = $(am_centre_OMPMPI_OBJECTS)
 centre_OMPMPI_LDADD = $(LDADD)
 centre_OMPMPI_DEPENDENCIES =
@@ -183,8 +185,8 @@ am__depfiles_remade = ./$(DEPDIR)/Centre.Po \
 	./$(DEPDIR)/Inputs.Po ./$(DEPDIR)/NetcdfFile.Po \
 	./$(DEPDIR)/Netcdf_BAT.Po ./$(DEPDIR)/Netcdf_EntContri.Po \
 	./$(DEPDIR)/Netcdf_HistUtils.Po ./$(DEPDIR)/Netcdf_TrjInt.Po \
-	./$(DEPDIR)/Real2Int.Po ./$(DEPDIR)/Timer.Po \
-	./$(DEPDIR)/Utils.Po ./$(DEPDIR)/main_mpi.Po \
+	./$(DEPDIR)/Real2Int.Po ./$(DEPDIR)/Utils.Po \
+	./$(DEPDIR)/main_common.Po ./$(DEPDIR)/main_mpi.Po \
 	./$(DEPDIR)/main_smp.Po
 am__mv = mv -f
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
@@ -246,6 +248,7 @@ ACLOCAL = @ACLOCAL@
 AMTAR = @AMTAR@
 AM_CXXFLAGS = @AM_CXXFLAGS@
 AM_DEFAULT_VERBOSITY = @AM_DEFAULT_VERBOSITY@
+AM_LDFLAGS = @AM_LDFLAGS@
 AUTOCONF = @AUTOCONF@
 AUTOHEADER = @AUTOHEADER@
 AUTOMAKE = @AUTOMAKE@
@@ -301,14 +304,22 @@ am__quote = @am__quote@
 am__tar = @am__tar@
 am__untar = @am__untar@
 bindir = @bindir@
+build = @build@
 build_alias = @build_alias@
+build_cpu = @build_cpu@
+build_os = @build_os@
+build_vendor = @build_vendor@
 builddir = @builddir@
 datadir = @datadir@
 datarootdir = @datarootdir@
 docdir = @docdir@
 dvidir = @dvidir@
 exec_prefix = @exec_prefix@
+host = @host@
 host_alias = @host_alias@
+host_cpu = @host_cpu@
+host_os = @host_os@
+host_vendor = @host_vendor@
 htmldir = @htmldir@
 includedir = @includedir@
 infodir = @infodir@
@@ -341,8 +352,8 @@ top_srcdir = @top_srcdir@
 @USE_OMPMPI_TRUE@	Netcdf_HistUtils.h Real2Int.h Utils.h \
 @USE_OMPMPI_TRUE@	configcentre.h CoordinateInfo.h \
 @USE_OMPMPI_TRUE@	Netcdf_BAT.cpp NetcdfFile.cpp \
-@USE_OMPMPI_TRUE@	Netcdf_TrjInt.cpp Timer.cpp Version.h \
-@USE_OMPMPI_TRUE@	Centre.h Constants.h Inputs.h MpiCommTags.h \
+@USE_OMPMPI_TRUE@	Netcdf_TrjInt.cpp Version.h Centre.h \
+@USE_OMPMPI_TRUE@	Constants.h Inputs.h MpiCommTags.h \
 @USE_OMPMPI_TRUE@	Estimators.cpp Inputs.cpp Netcdf_BAT.h \
 @USE_OMPMPI_TRUE@	NetcdfFile.h Netcdf_TrjInt.h Timer.h \
 @USE_OMPMPI_TRUE@	CentreStdio.cpp Convergance.cpp Estimators.h \
@@ -352,25 +363,27 @@ top_srcdir = @top_srcdir@
 @USE_OMPMPI_TRUE@	Discretizer_mpi.cpp EntropyCalculator_mpi.cpp \
 @USE_OMPMPI_TRUE@	EntropyScorer.cpp EntropyScorer.h Inputs.h \
 @USE_OMPMPI_TRUE@	Netcdf_EntContri.cpp Netcdf_HistUtils.cpp \
-@USE_OMPMPI_TRUE@	Real2Int.cpp Utils.cpp main_mpi.cpp
+@USE_OMPMPI_TRUE@	Real2Int.cpp Utils.cpp main_common.cpp \
+@USE_OMPMPI_TRUE@	main_mpi.cpp
 @USE_OMPMPI_FALSE@centre_OMP_SOURCES = Centre.cpp \
 @USE_OMPMPI_FALSE@	macrologger/macrologger.h main_common.h \
 @USE_OMPMPI_FALSE@	CentreStdio.h Convergence.h \
 @USE_OMPMPI_FALSE@	Netcdf_EntContri.h Netcdf_HistUtils.h \
 @USE_OMPMPI_FALSE@	Real2Int.h Utils.h configcentre.h \
 @USE_OMPMPI_FALSE@	CoordinateInfo.h Netcdf_BAT.cpp \
-@USE_OMPMPI_FALSE@	NetcdfFile.cpp Netcdf_TrjInt.cpp Timer.cpp \
-@USE_OMPMPI_FALSE@	Version.h Centre.h Inputs.h Constants.h \
-@USE_OMPMPI_FALSE@	Estimators.cpp Inputs.cpp Netcdf_BAT.h \
-@USE_OMPMPI_FALSE@	NetcdfFile.h Netcdf_TrjInt.h Timer.h \
-@USE_OMPMPI_FALSE@	CentreStdio.cpp Convergance.cpp Estimators.h \
-@USE_OMPMPI_FALSE@	Inputs.h CentreIException.h Discretizer.h \
+@USE_OMPMPI_FALSE@	NetcdfFile.cpp Netcdf_TrjInt.cpp Version.h \
+@USE_OMPMPI_FALSE@	Centre.h Inputs.h Constants.h Estimators.cpp \
+@USE_OMPMPI_FALSE@	Inputs.cpp Netcdf_BAT.h NetcdfFile.h \
+@USE_OMPMPI_FALSE@	Netcdf_TrjInt.h Timer.h CentreStdio.cpp \
+@USE_OMPMPI_FALSE@	Convergance.cpp Estimators.h Inputs.h \
+@USE_OMPMPI_FALSE@	CentreIException.h Discretizer.h \
 @USE_OMPMPI_FALSE@	EntropyCalculator.h EntropyScorer.h \
 @USE_OMPMPI_FALSE@	Discretizer.cpp CentreIException.cpp \
 @USE_OMPMPI_FALSE@	Exceptions.h EntropyCalculator.cpp \
 @USE_OMPMPI_FALSE@	EntropyScorer.cpp EntropyScorer.h \
 @USE_OMPMPI_FALSE@	Netcdf_EntContri.cpp Netcdf_HistUtils.cpp \
-@USE_OMPMPI_FALSE@	Real2Int.cpp Utils.cpp main_smp.cpp
+@USE_OMPMPI_FALSE@	Real2Int.cpp Utils.cpp main_common.cpp \
+@USE_OMPMPI_FALSE@	main_smp.cpp
 all: all-am
 
 .SUFFIXES:
@@ -478,8 +491,8 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Netcdf_HistUtils.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Netcdf_TrjInt.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Real2Int.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Timer.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Utils.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main_common.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main_mpi.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main_smp.Po@am__quote@ # am--include-marker
 
@@ -647,8 +660,8 @@ distclean: distclean-am
 	-rm -f ./$(DEPDIR)/Netcdf_HistUtils.Po
 	-rm -f ./$(DEPDIR)/Netcdf_TrjInt.Po
 	-rm -f ./$(DEPDIR)/Real2Int.Po
-	-rm -f ./$(DEPDIR)/Timer.Po
 	-rm -f ./$(DEPDIR)/Utils.Po
+	-rm -f ./$(DEPDIR)/main_common.Po
 	-rm -f ./$(DEPDIR)/main_mpi.Po
 	-rm -f ./$(DEPDIR)/main_smp.Po
 	-rm -f Makefile
@@ -713,8 +726,8 @@ maintainer-clean: maintainer-clean-am
 	-rm -f ./$(DEPDIR)/Netcdf_HistUtils.Po
 	-rm -f ./$(DEPDIR)/Netcdf_TrjInt.Po
 	-rm -f ./$(DEPDIR)/Real2Int.Po
-	-rm -f ./$(DEPDIR)/Timer.Po
 	-rm -f ./$(DEPDIR)/Utils.Po
+	-rm -f ./$(DEPDIR)/main_common.Po
 	-rm -f ./$(DEPDIR)/main_mpi.Po
 	-rm -f ./$(DEPDIR)/main_smp.Po
 	-rm -f Makefile

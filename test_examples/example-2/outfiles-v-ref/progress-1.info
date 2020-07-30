@@ -1,0 +1,7 @@
+ TaskSet     State          Started On    AvgTimeTask    ElapsedTime   DoneTasks  TotalTasks Done[%] ExpcTimeLeft
+Discrete Completed 2020-07-30 18:50:40         0.082s        42.912s         520         520  100.00           0s
+     DIH Completed 2020-07-30 18:50:40         0.082s        42.912s         520         520  100.00           0s
+ Entropy Completed 2020-07-30 18:51:23         0.000s         0.684s       19168       19168  100.00           0s
+  DIH-1D Completed 2020-07-30 18:51:23         0.000s         0.061s         520         520  100.00           0s
+  D/D-2D Completed 2020-07-30 18:51:23         0.000s         0.623s       18648       18648  100.00           0s
+

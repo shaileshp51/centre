@@ -1,30 +1,34 @@
 #ifndef INC_CENTRE_TIMER_H
 #define INC_CENTRE_TIMER_H
-/// Class used to get timing information.
-/** Under the hood the function gettimeofday is used by default, which has
- * microsecond resolution. If TIMER is defined, clock_gettime is used instead
- * which has nanosecond resolution and is superior to gettimeofday in many 
- * ways, but requires linking to another library for some versions of GLIB
- * an so is less portable.
- */
+
+#include "configcentre.h"
+
+/// A class for timing the execution time of execution of a section of code
+/// precision is milliseconds
 class Timer {
 public:
-	Timer();
+	Timer() {
+		_start = Clock::now();
+		_stop = Clock::now();
+	}
 	void start() {
-		getWallTime(start_sec_, start_ns_);
+		_start = Clock::now();
 	}
-	void stop();
+	void stop() {
+		_stop = Clock::now();
+		_total = std::chrono::duration_cast<std::chrono::milliseconds>(
+               _stop - _start).count();
+	}
+	double total_milliseconds() const {
+		return _total;
+	}
 	double total() const {
-		return total_;
+		return _total/1000;
 	}
-	void writeTiming(int, const char*, double) const;
-	void writeTiming(int i, const char *h) const {
-		return writeTiming(i, h, 0.0);
-	}
+
 private:
-	void getWallTime(int&, int&);
-	int start_sec_;
-	int start_ns_;
-	double total_;
+	Clock::time_point _start;
+	Clock::time_point _stop;
+	double _total;
 };
 #endif

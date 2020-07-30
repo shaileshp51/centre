@@ -9,7 +9,7 @@
  * bin membership represented in integer, it also defines a file format for the
  * purpose and uses NetCDF file format and library as requisite.
  *
- * Dependencies: libnetcdf, libnetcdf++
+ * Dependencies: netcdf-c
  */
 
 #ifndef NETCDF_TRJINT_H

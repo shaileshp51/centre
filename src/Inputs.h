@@ -256,10 +256,10 @@ private:
 		u_int nbond;
 		u_int nangle;
 		u_int ndihed;
+		ull_int randseed;
 		bool shuffle_frames;
 		bool optimizedih;
 		bool shuffle_dofs;
-		ull_int randseed;
 		PDFMethod pdfmethod;
 		std::vector<std::string> fnames;
 		std::vector<ull_int> nframes;

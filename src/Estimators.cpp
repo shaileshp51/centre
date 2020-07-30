@@ -76,9 +76,6 @@ int binData1D(const hbin_t nsteps, const std::vector<hbin_t> &bin_shemes,
 			}
 			binid_off += nbins;
 		}
-#ifdef USE_OMPMPI
-		int num_threads = omp_get_max_threads();
-#endif
 		ull_int step_size = nframes / nsteps;
 		ull_int frameid_shift = 0;
 		u_int binid_shift = 0;
@@ -89,40 +86,11 @@ int binData1D(const hbin_t nsteps, const std::vector<hbin_t> &bin_shemes,
 				ull_int offset = i * step_size;
 				int offset_freqs = (nbins_sum * i) + binid_shift;
 
-#ifdef USE_OMPMPI
-				std::vector<std::vector<int>> local_freqs(num_threads + 1,
-						std::vector<int>(nbins));
-#pragma omp parallel
-				{
-					int tid = omp_get_thread_num();
-					// __declspec (align(64)) int local_freqs[num_threads + 1][(int)nbins];
-
-#pragma omp for nowait
-					for (size_t j = 0; j < step_size; ++j) {
-						hbin_t bin = (*(data + frameid_shift + offset + j));
-						// std::cout << (int) bin << " ";
-						local_freqs[tid][bin]++;
-					}
-					// std::cout << std::endl << "hist freq thread step(" << i << ") ";
-				}
-//#pragma omp parallel
-//			{
-//#pragma omp for
-				for (size_t j = 0; j < nbins; ++j) {
-					for (size_t t = 0; t < num_threads; ++t) {
-						// std::cout << local_freqs[t][j] << " ";
-						freqs_obs[offset_freqs + j] += local_freqs[t][j];
-					}
-				}
-//			}
-
-#else
 				hbin_t bin;
 				for (size_t j = 0; j < step_size; ++j) {
 					bin = (*(data + frameid_shift + offset + j));
 					freqs_obs[offset_freqs + bin] += 1;
 				}
-#endif
 			}
 
 			for (size_t i = 1; i < nsteps; ++i) {
@@ -190,9 +158,7 @@ int binData2D(const hbin_t nsteps, const std::vector<hbin_t> &bin_shemes,
 			}
 			binid_off += 2 * nbins;
 		}
-#ifdef USE_OMPMPI
-		int num_threads = omp_get_max_threads();
-#endif
+
 		ull_int step_size = nframes / nsteps;
 		ull_int frameid_shift = 0;
 		u_int binid_shift = 0;
@@ -204,35 +170,6 @@ int binData2D(const hbin_t nsteps, const std::vector<hbin_t> &bin_shemes,
 				ull_int offset = i * step_size;
 				int offset_freqs = (nbins_sum_sq * i) + binid_shift;
 
-				// int local_freqs[num_threads + 1][(int) nbins][(int) nbins] { };
-#ifdef USE_OMPMPI
-				std::vector<std::vector<int>> local_freqs(num_threads + 1,
-						std::vector<int>(nbins_sq));
-#pragma omp parallel
-				{
-					int tid = omp_get_thread_num();
-					// __declspec (align(64)) int local_freqs[num_threads + 1][(int)nbins];
-					hbin_t bin_ids[2];
-#pragma omp for nowait
-					for (size_t j = 0; j < step_size; ++j) {
-						bin_ids[0] = (*(data1 + frameid_shift + offset + j));
-						bin_ids[1] = (*(data2 + frameid_shift + offset + j));
-						// local_freqs[tid][bin1][bin2]++;
-						local_freqs[tid][get2D21DIndex(2, &bin_ids[0], nbins)]++;
-					}
-					// std::cout << std::endl << "hist freq thread step(" << i << ") ";
-				}
-//#pragma omp parallel
-//			{
-//#pragma omp for
-				for (size_t j = 0; j < nbins_sq; ++j) {
-					for (size_t t = 0; t < num_threads; ++t) {
-						// std::cout << local_freqs[t][j] << " ";
-						freqs_obs[offset_freqs + j] += local_freqs[t][j];
-					}
-				}
-//			}
-#else
 				hbin_t bin_ids[2];
 				size_t d1_index;
 				for (size_t j = 0; j < step_size; ++j) {
@@ -241,7 +178,6 @@ int binData2D(const hbin_t nsteps, const std::vector<hbin_t> &bin_shemes,
 					d1_index = get2D21DIndex(2, &bin_ids[0], nbins);
 					freqs_obs[offset_freqs + d1_index] += 1;
 				}
-#endif
 			}
 
 			for (size_t i = 1; i < nsteps; ++i) {
@@ -276,111 +212,6 @@ size_t getND21DIndex(const hbin_t nD, const hbin_t *indices,
 	}
 	result += *(indices + nD - 1);
 	return result;
-}
-
-int binDataND(const hbin_t nD, const hbin_t nsteps,
-		const std::vector<hbin_t> &bin_schemes, const ull_int nframes,
-		const std::vector<double> min_d, const std::vector<double> max_d,
-		std::vector<hbin_t*> data_pv, std::vector<ull_int> *freqs_obs,
-		std::vector<double> *bin_mids) {
-	size_t nbins_powN_sum = 0;
-	for (size_t i = 0; i < bin_schemes.size(); ++i) {
-		nbins_powN_sum += pow(bin_schemes[i], nD);
-	}
-
-	if (nsteps * nbins_powN_sum != freqs_obs->size()) {
-		return -1;
-	} else {
-		int binid_off = 0;
-		for (size_t tmp = 0; tmp < bin_schemes.size(); ++tmp) {
-			hbin_t nbins = bin_schemes[tmp];
-			std::vector<double> freqs(nbins_powN_sum, 0.0);
-			std::vector<double> bin_width(nD, 0.0);
-			std::vector<double> bin_width_half(nD, 0.0);
-
-			for (int i = 0; i < nD; ++i) {
-				bin_width[i] = (max_d[i] - min_d[i]) / nbins;
-				bin_width_half[i] = bin_width[i] / 2.0;
-			}
-			std::vector<double> bin_offset_dbl(min_d);
-			for (int d = 0; d < nD; ++d) {
-				int binid_off2 = binid_off + d * nbins;
-				for (int i = 0; i < nbins; ++i) {
-					(*bin_mids)[binid_off2 + i] = bin_offset_dbl[i]
-							+ bin_width_half[i];
-					bin_offset_dbl[i] += bin_width[i];
-				}
-			}
-			binid_off += nD * nbins;
-		}
-
-		int num_threads = omp_get_max_threads();
-		ull_int step_size = nframes / nsteps;
-		ull_int frameid_shift = 0;
-		u_int binid_shift = 0;
-		for (u_int schemes_id = 0; schemes_id < bin_schemes.size();
-				++schemes_id) {
-			hbin_t nbins = bin_schemes[schemes_id];
-			size_t nbins_powN = pow(nbins, nD);
-			for (size_t i = 0; i < nsteps; ++i) {
-				// ull_int offset = i * step_size;
-				int offset_freqs = (nbins_powN_sum * i) + binid_shift;
-
-				std::vector<std::vector<int>> local_freqs(num_threads + 1,
-						std::vector<int>(nbins_powN));
-
-#pragma omp parallel
-				{
-					int tid = omp_get_thread_num();
-					// __declspec (align(64)) int local_freqs[num_threads + 1][(int)nbins];
-
-#pragma omp for nowait
-					for (size_t j = 0; j < step_size; ++j) {
-						hbin_t bin_ids[nD];
-						for (int did = 0; did < nD; ++did) {
-							hbin_t bin1 = (*(data_pv[did] + frameid_shift + j));
-							bin_ids[did] = bin1;
-						}
-
-						// std::cout << (int) bin << " ";
-						local_freqs[tid][getND21DIndex(nD, &bin_ids[0], nbins)]++;
-					}
-					// std::cout << std::endl << "hist freq thread step(" << i << ") ";
-				}
-//#pragma omp parallel
-//          {
-//#pragma omp for
-				for (size_t j = 0; j < nbins_powN; ++j) {
-					for (size_t t = 0; t < num_threads; ++t) {
-						// std::cout << local_freqs[t][j] << " ";
-						(*freqs_obs)[offset_freqs + j] += local_freqs[t][j];
-					}
-				}
-//          }
-			}
-			for (size_t i = 1; i < nsteps; ++i) {
-				int off = (nbins_powN_sum * i) + binid_shift;
-				for (size_t j = 0; j < nbins_powN; ++j) {
-					(*freqs_obs)[off + j] += (*freqs_obs)[off - nbins_powN_sum
-							+ j];
-				}
-			}
-#ifdef DEBUG_CODE
-			std::cout << "Scheme: (" << schemes_id << ", " << (int) nbins << ")" << std::endl;
-			for (size_t i = 0; i < nsteps; ++i) {
-				int off = (nbins_powN_sum * i) + binid_shift;
-				std::cout << std::endl << "hist freq: final step  {";
-				for (size_t j = 0; j < nbins_powN; ++j) {
-					std::cout << "(" << off + j << ", " << (*freqs_obs)[off + j] << "), ";
-				}
-				std::cout << "} " << std::endl;
-			}
-#endif
-			frameid_shift += nframes;
-			binid_shift += nbins_powN;
-		}
-	}
-	return 0;
 }
 
 int entropy1D(const BAT_t type_d, const u_int id,

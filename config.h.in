@@ -1,6 +1,9 @@
 /* config.h.in.  Generated from configure.ac by autoheader.  */
 
-/* Enable full progress information. */
+/* Debug Mode */
+#undef DEBUG
+
+/* Enable extra-detailed progress information. */
 #undef DETAILED_TIMING
 
 /* define if the compiler supports basic C++11 syntax */
@@ -8,6 +11,9 @@
 
 /* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H
+
+/* Define to 1 if you have the `netcdf' library (-lnetcdf). */
+#undef HAVE_LIBNETCDF
 
 /* Define to 1 if you have the <memory.h> header file. */
 #undef HAVE_MEMORY_H
@@ -38,6 +44,15 @@
 
 /* Define to 1 if you have the <unistd.h> header file. */
 #undef HAVE_UNISTD_H
+
+/* No-debug Mode */
+#undef NDEBUG
+
+/* Current OS is Linux. */
+#undef OS_IS_LINUX
+
+/* Current OS is macOS. */
+#undef OS_IS_OSX
 
 /* Name of package */
 #undef PACKAGE

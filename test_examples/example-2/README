@@ -1,7 +1,7 @@
 This example is of a 36-residue peptide. The peptide is system is 
 prepared and simulated using Amber MD simulation package.
 
-This directory as two files initially
+This directory also has following two files:
   1. The structure file
      * 3ZWZ.lig.gas.leap.prmtop
   2. A trajectory file, which contains 1000 frames.
@@ -35,13 +35,14 @@ Now let us make a directory and copy/move relevant files to it for entropy
 computation using centre. Let us also make a direcory for centre output 
 files created during the run.In case directories are missing.
 
-mkdir -p inpfiles outfiles
+mkdir -p inpfiles outfiles-h outfiles-v
 
-mv 3ZWZ.lig_ex2_dfs_2-1-5_bat.nc tree_ex2_dfs_2-1-5.txt subset_ex2_dfs_2-1-5.txt neigh_ex2_dfs_2-1-5*.txt inpfiles/
+mv 3ZWZ.lig_ex2_dfs_2-1-5_bat.nc tree_ex2_dfs_2-1-5.txt \
+   subset_ex2_dfs_2-1-5.txt neigh_ex2_dfs_2-1-5*.txt inpfiles/
 
 Now lets change directory to inpfiles, and get the absolute paths for
-inpfiles and outfiles. Copy these paths to centre-inp.cfg file before
-running centre.
+inpfiles and outfiles-h. Copy these paths to centre-histogram-inp.cfg file 
+before running centre.
 
 There are two different build options, one creates a OpenMP parallel
 executable which utilized the thread based parallelism the executable

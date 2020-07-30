@@ -62,7 +62,7 @@ void Discretizer::run_dtype(BAT_t dtype, std::vector<ull_int> &shuffle_index,
 		default:
 			cout << "ERROR:: Invalid BAT_t encountered" << endl;
 		}
-		dscrt_dtyp->start = std::chrono::high_resolution_clock::now();
+		dscrt_dtyp->start = Clock::now();
 		dscrt_dtyp->current = dscrt_dtyp->start;
 		dscrt_dtyp->strt_read = dscrt_dtyp->curr_read = dscrt_dtyp->start;
 		dscrt_dtyp->strt_comp = dscrt_dtyp->curr_comp = dscrt_dtyp->start;
@@ -88,7 +88,7 @@ void Discretizer::run_dtype(BAT_t dtype, std::vector<ull_int> &shuffle_index,
 					(bl_strat_id + chached_dims <= (int) n_dtyptasks) ?
 							chached_dims : (n_dtyptasks - bl_strat_id);
 
-			auto _startr = std::chrono::high_resolution_clock::now();
+			auto _startr = Clock::now();
 			std::vector<std::vector<data_t>> dtypes_v(block_tasks,
 					std::vector<data_t>(nfrm4rl2int));
 			std::vector<std::vector<hbin_t>> dtypes_int_v(block_tasks,
@@ -129,11 +129,11 @@ void Discretizer::run_dtype(BAT_t dtype, std::vector<ull_int> &shuffle_index,
 						bl_strat_id, bl_strat_id + block_tasks);
 				exit(0);
 			}
-			auto _endr = std::chrono::high_resolution_clock::now();
-			auto _dur_rd = std::chrono::duration_cast<std::chrono::nanoseconds>(
+			auto _endr = Clock::now();
+			auto _dur_rd = std::chrono::duration_cast<ClockResolution>(
 					_endr - _startr).count();
-			dscrt_dtyp->curr_read += std::chrono::nanoseconds(_dur_rd);
-			progressstate.dscrt.curr_read += std::chrono::nanoseconds(_dur_rd);
+			dscrt_dtyp->curr_read += ClockResolution(_dur_rd);
+			progressstate.dscrt.curr_read += ClockResolution(_dur_rd);
 
 #pragma omp parallel for
 			for (int idx = 0; idx < block_tasks; ++idx) {
@@ -193,7 +193,7 @@ void Discretizer::run_dtype(BAT_t dtype, std::vector<ull_int> &shuffle_index,
 					Real2Int::shuffleArray(shuffle_index, dtypes_int_v[idx]);
 				} else if (inputs.getBats().isShuffleDofs()) {
 					unsigned seed =
-							std::chrono::high_resolution_clock::now().time_since_epoch().count();
+							Clock::now().time_since_epoch().count();
 					std::shuffle(shuffle_index.begin(), shuffle_index.end(),
 							std::default_random_engine(seed));
 					Real2Int::shuffleArray(shuffle_index, dtypes_int_v[idx]);
@@ -215,13 +215,13 @@ void Discretizer::run_dtype(BAT_t dtype, std::vector<ull_int> &shuffle_index,
 						dtypes_extrm_v[idx][3], 0, (hbin_t) bin_schemes.size(),
 						0, nfrm4rl2int - 1, dtypes_int_v[idx]);
 			}
-			auto _endcomm2 = std::chrono::high_resolution_clock::now();
+			auto _endcomm2 = Clock::now();
 			auto _durcomm2 =
-					std::chrono::duration_cast<std::chrono::nanoseconds>(
+					std::chrono::duration_cast<ClockResolution>(
 							_endcomm2 - _endr).count();
 
-			dscrt_dtyp->curr_comp += std::chrono::nanoseconds(_durcomm2);
-			progressstate.dscrt.curr_comp += std::chrono::nanoseconds(
+			dscrt_dtyp->curr_comp += ClockResolution(_durcomm2);
+			progressstate.dscrt.curr_comp += ClockResolution(
 					_durcomm2);
 
 			if (intDtypeTraj->writeRecords(vecs_CoordBAT)) {
@@ -230,13 +230,13 @@ void Discretizer::run_dtype(BAT_t dtype, std::vector<ull_int> &shuffle_index,
 						bl_strat_id + block_tasks);
 				exit(0);
 			}
-			auto _endwrt = std::chrono::high_resolution_clock::now();
-			auto _durwrt = std::chrono::duration_cast<std::chrono::nanoseconds>(
+			auto _endwrt = Clock::now();
+			auto _durwrt = std::chrono::duration_cast<ClockResolution>(
 					_endwrt - _endcomm2).count();
-			dscrt_dtyp->curr_write += std::chrono::nanoseconds(_durwrt);
-			progressstate.dscrt.curr_write += std::chrono::nanoseconds(_durwrt);
+			dscrt_dtyp->curr_write += ClockResolution(_durwrt);
+			progressstate.dscrt.curr_write += ClockResolution(_durwrt);
 
-			dscrt_dtyp->current = std::chrono::high_resolution_clock::now();
+			dscrt_dtyp->current = Clock::now();
 			progressstate.dscrt.current = dscrt_dtyp->current;
 			dscrt_dtyp->done_tasks += block_tasks;
 			progressstate.dscrt.done_tasks += block_tasks;
@@ -267,7 +267,7 @@ void Discretizer::run_dtype(BAT_t dtype, std::vector<ull_int> &shuffle_index,
 				dscrt_tasks_done %= dscrt_tasks_freq;
 			}
 		}
-		dscrt_dtyp->current = std::chrono::high_resolution_clock::now();
+		dscrt_dtyp->current = Clock::now();
 		dscrt_dtyp->cstt = ExecState::COMPLETED;
 		int dscrt_active = 0;
 		if (progressstate.dscrt_b.active)
@@ -317,7 +317,7 @@ void Discretizer::run(std::vector<ull_int> &shuffle_index,
 	if (inputs.getControl().isDiscetize()) {
 		{
 			progressstate.dscrt.start =
-					std::chrono::high_resolution_clock::now();
+					Clock::now();
 			Timer time_real2int;
 			time_real2int.start();
 			mprintf("Trajectory Real to Integer conversion starts.\n");

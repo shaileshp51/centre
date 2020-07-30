@@ -44,7 +44,7 @@ void Discretizer::run_dtype_mpi(BAT_t dtype,
 		nframes_trjs = traj_inp.Ncframe();
 		if (nfrm4rl2int > nframes_trjs) {
 			LOG_ERROR(
-					"Rank[%d]>> Trajectory frames=%d is less than mentioned in input %d for discretization",
+					"Rank[%d]>> Trajectory frames=%llu is less than mentioned in input %llu for discretization",
 					rank, nframes_trjs, nfrm4rl2int);
 			exit(0);
 		}
@@ -80,7 +80,7 @@ void Discretizer::run_dtype_mpi(BAT_t dtype,
 		default:
 			LOG_ERROR("Rank[%d]>> Invalid BAT_t encountered", rank);
 		}
-		dscrt_dtyp->start = std::chrono::high_resolution_clock::now();
+		dscrt_dtyp->start = Clock::now();
 		dscrt_dtyp->current = dscrt_dtyp->start;
 		dscrt_dtyp->strt_read = dscrt_dtyp->curr_read = dscrt_dtyp->start;
 		dscrt_dtyp->strt_comp = dscrt_dtyp->curr_comp = dscrt_dtyp->start;
@@ -103,12 +103,12 @@ void Discretizer::run_dtype_mpi(BAT_t dtype,
 
 		MPI_Barrier(MPI_COMM_WORLD);
 
-		LOG_DEBUG("Rank[%d]>> bin schemes master: %d, , scheme: %d", rank, bin_schemes.size(), (int) bin_schemes[0]);
+		LOG_DEBUG("Rank[%d]>> bin schemes master: %ld, , scheme: %d", rank, bin_schemes.size(), (int) bin_schemes[0]);
 
-		for (int bl_strat_id = 0; bl_strat_id < n_dtyptasks; bl_strat_id +=
+		for (int bl_strat_id = 0; bl_strat_id < (int)n_dtyptasks; bl_strat_id +=
 				chached_dims) {
 			int block_tasks =
-					(bl_strat_id + chached_dims <= n_dtyptasks) ?
+					(bl_strat_id + chached_dims <= (int)n_dtyptasks) ?
 							chached_dims : (n_dtyptasks - bl_strat_id);
 			int curr_cache_per_proc = chache_dims_per_proc;
 			int max_slave_rank = numprocs;
@@ -131,7 +131,7 @@ void Discretizer::run_dtype_mpi(BAT_t dtype,
 			LOG_DEBUG("Rank[%d]>> Bcast [bl_start=%d, bl_tasks=%d, curr_cache_perporoc=%d, max_rank=%d]",
 					rank, bl_details[0], bl_details[1], bl_details[2], bl_details[3]);
 
-			auto _startr = std::chrono::high_resolution_clock::now();
+			auto _startr = Clock::now();
 
 			std::vector<std::vector<data_t>> dtypes_v(curr_cache_per_proc,
 					std::vector<data_t>(nfrm4rl2int));
@@ -147,13 +147,13 @@ void Discretizer::run_dtype_mpi(BAT_t dtype,
 			std::vector<CoordBAT> vecs_CoordBAT(chache_dims_per_proc,
 					CoordBAT(-1, bin_schemes.size(), nfrm4rl2int));
 
-			auto _endr = std::chrono::high_resolution_clock::now();
-			auto _dur_rd = std::chrono::duration_cast<std::chrono::nanoseconds>(
+			auto _endr = Clock::now();
+			auto _dur_rd = std::chrono::duration_cast<ClockResolution>(
 					_endr - _startr).count();
-			dscrt_dtyp->curr_read += std::chrono::nanoseconds(_dur_rd);
-			dscrt_dtyp->curr_read += std::chrono::nanoseconds(_dur_rd);
+			dscrt_dtyp->curr_read += ClockResolution(_dur_rd);
+			dscrt_dtyp->curr_read += ClockResolution(_dur_rd);
 			size_t n_reads_curr_block = 0;
-			for (size_t process_idx = 1; process_idx < max_slave_rank;
+			for (size_t process_idx = 1; process_idx < (size_t)max_slave_rank;
 					++process_idx) {
 				int trjreadstatus = 0;
 				auto read_start_id = bl_strat_id
@@ -185,13 +185,13 @@ void Discretizer::run_dtype_mpi(BAT_t dtype,
 				}
 
 				for (size_t n_reads_curr_proc = 0;
-						n_reads_curr_proc < curr_cache_per_proc;
+						n_reads_curr_proc < (size_t)curr_cache_per_proc;
 						++n_reads_curr_proc) {
 					MPI_Send(dtypes_v[n_reads_curr_proc].data(), nfrm4rl2int,
 					MPI_FLOAT, process_idx,
 					DIM_REAL_TAG, MPI_COMM_WORLD);
 
-					LOG_DEBUG("Rank[%d]>> for dim-id(%d) Sent(%d) floats to slave(%d)",
+					LOG_DEBUG("Rank[%d]>> for dim-id(%ld) Sent(%lld) floats to slave(%ld)",
 							rank, bl_strat_id+n_reads_curr_proc, nfrm4rl2int,
 							process_idx);
 
@@ -255,11 +255,11 @@ void Discretizer::run_dtype_mpi(BAT_t dtype,
 							rank, bl_strat_id, bl_strat_id + block_tasks);
 					exit(0);
 				}
-				auto _endcomm1 = std::chrono::high_resolution_clock::now();
+				auto _endcomm1 = Clock::now();
 				auto _durcomm1 = std::chrono::duration_cast<
-						std::chrono::nanoseconds>(_endcomm1 - _endr).count();
-				dscrt_dtyp->curr_comm += std::chrono::nanoseconds(_durcomm1);
-				dscrt_dtyp->curr_comm += std::chrono::nanoseconds(_durcomm1);
+						ClockResolution>(_endcomm1 - _endr).count();
+				dscrt_dtyp->curr_comm += ClockResolution(_durcomm1);
+				dscrt_dtyp->curr_comm += ClockResolution(_durcomm1);
 
 #pragma omp parallel for
 				for (int tidx = 0; tidx < n_task4master; ++tidx) {
@@ -290,10 +290,12 @@ void Discretizer::run_dtype_mpi(BAT_t dtype,
 									dtypes_v[tidx], &min_d, &max_d, &avg_d,
 									&phase_d, dtypes_int_v_master[tidx]);
 							break;
+            case BAT_t::NONE:
+              break;
 						}
 						if (returnvalue != 0) {
 							LOG_ERROR(
-									"Rank[%d]>> Converting Real2Int using HISTOGRAM for %s id(%d)",
+									"Rank[%d]>> Converting Real2Int using HISTOGRAM for %s id(%ld)",
 									rank, content.c_str(), did);
 							exit(0);
 						}
@@ -308,7 +310,7 @@ void Discretizer::run_dtype_mpi(BAT_t dtype,
 								min_poss_master[tidx], nfoundmins_master[tidx],
 								dtypes_int_v_master[tidx])) {
 							LOG_ERROR(
-									"ERROR>> Converting Real2Int using vonMisesKDE for %s id(%d)",
+									"ERROR>> Converting Real2Int using vonMisesKDE for %s id(%ld)",
 									content.c_str(), did);
 							exit(0);
 						}
@@ -319,7 +321,7 @@ void Discretizer::run_dtype_mpi(BAT_t dtype,
 								dtypes_int_v_master[tidx]);
 					} else if (inputs.getBats().isShuffleDofs()) {
 						unsigned seed =
-								std::chrono::high_resolution_clock::now().time_since_epoch().count();
+								Clock::now().time_since_epoch().count();
 						std::shuffle(shuffle_index.begin(), shuffle_index.end(),
 								std::default_random_engine(seed));
 						Real2Int::shuffleArray(shuffle_index,
@@ -346,12 +348,12 @@ void Discretizer::run_dtype_mpi(BAT_t dtype,
 							dtypes_int_v_master[tidx]);
 				}
 
-				auto _endcomm2 = std::chrono::high_resolution_clock::now();
+				auto _endcomm2 = Clock::now();
 				auto _durcomm2 = std::chrono::duration_cast<
-						std::chrono::nanoseconds>(_endcomm2 - _endr).count();
+						ClockResolution>(_endcomm2 - _endr).count();
 
-				dscrt_dtyp->curr_comp += std::chrono::nanoseconds(_durcomm2);
-				progressstate.dscrt.curr_comp += std::chrono::nanoseconds(
+				dscrt_dtyp->curr_comp += ClockResolution(_durcomm2);
+				progressstate.dscrt.curr_comp += ClockResolution(
 						_durcomm2);
 			}
 
@@ -359,9 +361,9 @@ void Discretizer::run_dtype_mpi(BAT_t dtype,
 
 			LOG_DEBUG("Rank[%d]>> Waiting for slave results", rank);
 
-			for (size_t process_idx = 1; process_idx < max_slave_rank;
+			for (size_t process_idx = 1; process_idx < (size_t)max_slave_rank;
 					++process_idx) {
-				auto _startcomm = std::chrono::high_resolution_clock::now();
+				auto _startcomm = Clock::now();
 				for (auto recv_idx = 0; recv_idx < curr_cache_per_proc;
 						++recv_idx) {
 					size_t did = bl_strat_id
@@ -371,7 +373,7 @@ void Discretizer::run_dtype_mpi(BAT_t dtype,
 					MPI_DOUBLE, process_idx, DIM_EXTRM_TAG,
 					MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
-					LOG_DEBUG("Rank[%d]>> received extrema of did(%d) from rank(%d)", rank, did, process_idx);
+					LOG_DEBUG("Rank[%d]>> received extrema of did(%ld) from rank(%ld)", rank, did, process_idx);
 
 					MPI_Recv(dtypes_int_v[recv_idx].data(),
 							n_schemes * nfrm4rl2int,
@@ -387,13 +389,13 @@ void Discretizer::run_dtype_mpi(BAT_t dtype,
 							(hbin_t) bin_schemes.size(), 0, nfrm4rl2int - 1,
 							dtypes_int_v[recv_idx]);
 				}
-				auto _endcomm = std::chrono::high_resolution_clock::now();
+				auto _endcomm = Clock::now();
 				auto _durcomm =
-						std::chrono::duration_cast<std::chrono::nanoseconds>(
+						std::chrono::duration_cast<ClockResolution>(
 								_endcomm - _startcomm).count();
 
-				dscrt_dtyp->curr_comm += std::chrono::nanoseconds(_durcomm);
-				progressstate.dscrt.curr_comm += std::chrono::nanoseconds(
+				dscrt_dtyp->curr_comm += ClockResolution(_durcomm);
+				progressstate.dscrt.curr_comm += ClockResolution(
 						_durcomm);
 				auto trjintwriteresultslave = ptr_int_dtype_traj->writeRecords(
 						vecs_CoordBAT, (ull_int) (curr_cache_per_proc));
@@ -404,39 +406,38 @@ void Discretizer::run_dtype_mpi(BAT_t dtype,
 							bl_strat_id, bl_strat_id + block_tasks);
 					MPI_Abort(MPI_COMM_WORLD, 0);
 				}
-				auto _endwrt = std::chrono::high_resolution_clock::now();
+				auto _endwrt = Clock::now();
 				auto _durwrt = std::chrono::duration_cast<
-						std::chrono::nanoseconds>(_endwrt - _endcomm).count();
+						ClockResolution>(_endwrt - _endcomm).count();
 
-				dscrt_dtyp->curr_write += std::chrono::nanoseconds(_durwrt);
-				progressstate.dscrt.curr_write += std::chrono::nanoseconds(
+				dscrt_dtyp->curr_write += ClockResolution(_durwrt);
+				progressstate.dscrt.curr_write += ClockResolution(
 						_durwrt);
 				dscrt_dtyp->done_tasks += curr_cache_per_proc;
 				progressstate.dscrt.done_tasks += curr_cache_per_proc;
 				dscrt_tasks_done += curr_cache_per_proc;
 			}
-			auto _startwrt = std::chrono::high_resolution_clock::now();
+			auto _startwrt = Clock::now();
 			if (n_task4master > 0) {
 				auto trjintwriteresult = ptr_int_dtype_traj->writeRecords(
 						vecs_CoordBAT_master, (ull_int) (n_task4master));
 				if (trjintwriteresult) {
 					LOG_ERROR(
-							"Rank[%d]>> error(%d): Writing binned data for %s range id(%d, %d)",
-							rank, content.c_str(), bl_strat_id,
-							bl_strat_id + block_tasks);
+							"Rank[%d]>> error(%s): Writing binned data for range id(%d, %d)",
+							rank, content.c_str(), bl_strat_id, bl_strat_id + block_tasks);
 					MPI_Abort(MPI_COMM_WORLD, 0);
 				}
 				dscrt_dtyp->done_tasks += n_task4master;
 				progressstate.dscrt.done_tasks += n_task4master;
 				dscrt_tasks_done += n_task4master;
 			}
-			auto _endwrt = std::chrono::high_resolution_clock::now();
-			auto _durwrt = std::chrono::duration_cast<std::chrono::nanoseconds>(
+			auto _endwrt = Clock::now();
+			auto _durwrt = std::chrono::duration_cast<ClockResolution>(
 					_endwrt - _startwrt).count();
-			dscrt_dtyp->curr_write += std::chrono::nanoseconds(_durwrt);
-			progressstate.dscrt.curr_write += std::chrono::nanoseconds(_durwrt);
+			dscrt_dtyp->curr_write += ClockResolution(_durwrt);
+			progressstate.dscrt.curr_write += ClockResolution(_durwrt);
 
-			dscrt_dtyp->current = std::chrono::high_resolution_clock::now();
+			dscrt_dtyp->current = Clock::now();
 			progressstate.dscrt.current = dscrt_dtyp->current;
 
 			if (dscrt_tasks_done >= dscrt_tasks_freq) {
@@ -451,7 +452,7 @@ void Discretizer::run_dtype_mpi(BAT_t dtype,
 			MPI_Barrier(MPI_COMM_WORLD);
 		}
 
-		dscrt_dtyp->current = std::chrono::high_resolution_clock::now();
+		dscrt_dtyp->current = Clock::now();
 		dscrt_dtyp->cstt = ExecState::COMPLETED;
 		progressstate.dscrt.current = dscrt_dtyp->current;
 		std::ofstream info_strm(
@@ -486,17 +487,17 @@ void Discretizer::run_dtype_mpi(BAT_t dtype,
 		int chache_dims_per_proc = cache_dscrt_dims_per_cpu * numprocs;
 		int chached_dims = chache_dims_per_proc * n_thread_perproc;
 
-		int block_tasks, block_start_id, curr_cache_per_proc, max_slave_rank;
+		int curr_cache_per_proc, max_slave_rank; // block_tasks, block_start_id;
 		int lc_bl_det[4];
 		// Process local variables for data receiving and processing
 		MPI_Barrier(MPI_COMM_WORLD);
 
-		for (int bl_strat_id = 0; bl_strat_id < n_dtyptasks; bl_strat_id +=
+		for (int bl_strat_id = 0; bl_strat_id < (int)n_dtyptasks; bl_strat_id +=
 				chached_dims) {
 			MPI_Bcast(&lc_bl_det, 4, MPI_INT, MASTER_PROC, MPI_COMM_WORLD);
 			MPI_Barrier(MPI_COMM_WORLD);
-			block_start_id = lc_bl_det[0];
-			block_tasks = lc_bl_det[1];
+			//block_start_id = lc_bl_det[0];
+			//block_tasks = lc_bl_det[1];
 			curr_cache_per_proc = lc_bl_det[2];
 			max_slave_rank = lc_bl_det[3];
 
@@ -516,14 +517,14 @@ void Discretizer::run_dtype_mpi(BAT_t dtype,
 						std::vector<double>(inputs.getVmkde().getNmaxconf(),
 								0.0));
 
-				LOG_DEBUG("Rank[%d]>> Waiting to receive %d sets of real nframes_tot: %d", rank, curr_cache_per_proc, nfrm4rl2int);
+				LOG_DEBUG("Rank[%d]>> Waiting to receive %d sets of real nframes_tot: %llu", rank, curr_cache_per_proc, nfrm4rl2int);
 
 				for (int tid = 0; tid < curr_cache_per_proc; ++tid) {
 					MPI_Recv(dtypslv_v[tid].data(), nfrm4rl2int, MPI_FLOAT,
 					MASTER_PROC, DIM_REAL_TAG,
 					MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
-					LOG_DEBUG("Rank[%d]>> received real-array(%d) of size(%d) of expected(%d)", rank, tid, nfrm4rl2int, curr_cache_per_proc);
+					LOG_DEBUG("Rank[%d]>> received real-array(%d) of size(%llu) of expected(%d)", rank, tid, nfrm4rl2int, curr_cache_per_proc);
 
 				}
 				MPI_Barrier(MPI_COMM_WORLD);
@@ -536,7 +537,7 @@ void Discretizer::run_dtype_mpi(BAT_t dtype,
 					double min_d = 0.0, max_d = 0.0, avg_d = 0.0, phase_d = 0.0;
 					size_t did = bl_strat_id + (rank - 1) * curr_cache_per_proc
 							+ tidx;
-					LOG_DEBUG("Rank[%d]>> started converting did(%u)", rank, did);
+					LOG_DEBUG("Rank[%d]>> started converting did(%lu)", rank, did);
 
 					if (inputs.getBats().getPdfmethod()
 							== PDFMethod::HISTOGRAM) {
@@ -560,10 +561,12 @@ void Discretizer::run_dtype_mpi(BAT_t dtype,
 									dtypslv_v[tidx], &min_d, &max_d, &avg_d,
 									&phase_d, dtypslv_int_v[tidx]);
 							break;
+            case BAT_t::NONE:
+              break;
 						}
 						if (returnvalue != 0) {
 							LOG_ERROR(
-									"Rank[%d]>> Converting Real2Int using HISTOGRAM for %s id(%d)",
+									"Rank[%d]>> Converting Real2Int using HISTOGRAM for %s id(%lu)",
 									rank, content.c_str(), did);
 							MPI_Abort(MPI_COMM_WORLD, returnvalue);
 						}
@@ -578,7 +581,7 @@ void Discretizer::run_dtype_mpi(BAT_t dtype,
 								dtypslv_v[tidx], min_poss[tidx],
 								nfoundmins[tidx], dtypslv_int_v[tidx])) {
 							LOG_ERROR(
-									"Rank[%d]>> Converting Real2Int using vonMisesKDE for %s id(%d)",
+									"Rank[%d]>> Converting Real2Int using vonMisesKDE for %s id(%lu)",
 									rank, content.c_str(), did);
 							exit(0);
 						}
@@ -588,7 +591,7 @@ void Discretizer::run_dtype_mpi(BAT_t dtype,
 								dtypslv_int_v[tidx]);
 					} else if (inputs.getBats().isShuffleDofs()) {
 						unsigned seed =
-								std::chrono::high_resolution_clock::now().time_since_epoch().count();
+								Clock::now().time_since_epoch().count();
 						std::shuffle(shuffle_index.begin(), shuffle_index.end(),
 								std::default_random_engine(seed));
 						Real2Int::shuffleArray(shuffle_index,
@@ -598,7 +601,7 @@ void Discretizer::run_dtype_mpi(BAT_t dtype,
 					dim_extremas[tidx][1] = max_d;
 					dim_extremas[tidx][2] = avg_d;
 					dim_extremas[tidx][3] = phase_d;
-					LOG_DEBUG("Rank[%d]>> Finished converting did(%d)", rank, did);
+					LOG_DEBUG("Rank[%d]>> Finished converting did(%lu)", rank, did);
 				}
 
 				MPI_Barrier(MPI_COMM_WORLD);
@@ -607,7 +610,7 @@ void Discretizer::run_dtype_mpi(BAT_t dtype,
 				for (int tidx = 0; tidx < curr_cache_per_proc; ++tidx) {
 					MPI_Send(dim_extremas[tidx].data(), 4, MPI_DOUBLE,
 					MASTER_PROC, DIM_EXTRM_TAG, MPI_COMM_WORLD);
-					LOG_DEBUG("Rank[%d]>> sent dim-exterma 4-doubles to master for did(%u)",
+					LOG_DEBUG("Rank[%d]>> sent dim-exterma 4-doubles to master for did(%d)",
 							rank, bl_strat_id + (rank - 1) * curr_cache_per_proc
 							+ tidx);
 
@@ -615,7 +618,7 @@ void Discretizer::run_dtype_mpi(BAT_t dtype,
 							n_schemes * nfrm4rl2int,
 							MPI_UNSIGNED_CHAR, MASTER_PROC, DIM_INT_TAG,
 							MPI_COMM_WORLD);
-					LOG_DEBUG("Rank[%d]>> Sending n_schemes * nframes_tot ints= %d to master", rank, n_schemes * nframes_tot_eff);
+					LOG_DEBUG("Rank[%d]>> Sending n_schemes * nframes_tot ints= %llu to master", rank, n_schemes * nframes_tot_eff);
 				}
 			} else {
 				MPI_Barrier(MPI_COMM_WORLD); // Synchronize if this rank does'nt expect to receive data from master
@@ -635,7 +638,7 @@ void Discretizer::run_mpi(std::vector<ull_int> &shuffle_index, const int rank,
 		Timer time_real2int;
 		if (rank == MASTER_PROC) {
 			progressstate.dscrt.start =
-					std::chrono::high_resolution_clock::now();
+					Clock::now();
 
 			time_real2int.start();
 			mprintf("Trajectory Real to Integer conversion starts.\n");

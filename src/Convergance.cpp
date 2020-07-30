@@ -5,6 +5,7 @@
  *      Author: shailesh
  */
 
+#include <omp.h>
 #include "Convergence.h"
 #include "Centre.h"
 
@@ -56,7 +57,7 @@ void getMaxMI2D(const SubsetData &subset, const Neighbors &neigh,
 		const u_int dataOffset, std::vector<double> &dataMI) {
 
 	u_int dataIdx = dataOffset;
-	u_int maxMIsIdx = 0;
+	//u_int maxMIsIdx = 0;
 	std::map<u_int, u_int> id2indx;
 	std::vector<u_int> sub_dims;
 	std::vector<u_int> d1_vec;
@@ -74,12 +75,12 @@ void getMaxMI2D(const SubsetData &subset, const Neighbors &neigh,
 		sub_dims = subset.getTorsions();
 		break;
 	}
-	u_int dim1_len = d1_vec.size();
+	//u_int dim1_len = d1_vec.size();
 	for (u_int i = 0; i < sub_dims.size(); ++i) {
 		id2indx[sub_dims[i]] = i;
 	}
-	for (u_int b1id = block[0]; b1id <= block[1]; ++b1id) {
-		double mi_max = -1.0e200;
+	for (auto b1id = block[0]; b1id <= block[1]; ++b1id) {
+		//double mi_max = -1.0e200;
 		u_int tmp_d1 = d1_vec[b1id];
 		std::vector<u_int> b_neigh;
 		switch (d2type) {
@@ -111,7 +112,7 @@ void getMaxMI2D(const SubsetData &subset, const Neighbors &neigh,
 		const std::vector<double> &dataIn, std::vector<double> &dataMI) {
 
 	u_int dataIdx = 0;
-	u_int maxMIsIdx = 0;
+	//u_int maxMIsIdx = 0;
 	std::map<u_int, u_int> id2indx;
 	std::vector<u_int> sub_dims;
 	std::vector<u_int> d1_vec;
@@ -129,12 +130,12 @@ void getMaxMI2D(const SubsetData &subset, const Neighbors &neigh,
 		sub_dims = subset.getTorsions();
 		break;
 	}
-	u_int dim1_len = d1_vec.size();
+	//u_int dim1_len = d1_vec.size();
 	for (u_int i = 0; i < sub_dims.size(); ++i) {
 		id2indx[sub_dims[i]] = i;
 	}
 	for (u_int b1id = 0; b1id < sub_dims.size(); ++b1id) {
-		double mi_max = -1.0e200;
+		//double mi_max = -1.0e200;
 		u_int tmp_d1 = d1_vec[b1id];
 		std::vector<u_int> b_neigh;
 		switch (d2type) {
@@ -188,7 +189,7 @@ void getMaxCrossMI2D(const SubsetData &subset, const Neighbors &neigh,
 		std::vector<double> &mi_data) {
 
 	u_int dataIdx = dataOffset;
-	u_int maxMIsIdx = 0;
+	//u_int maxMIsIdx = 0;
 	std::map<u_int, u_int> id2indx1;
 	std::map<u_int, u_int> id2indx2;
 
@@ -240,8 +241,8 @@ void getMaxCrossMI2D(const SubsetData &subset, const Neighbors &neigh,
 	} else if (d1type == 'T' && d2type == 'T') {
 		neigh.torsionKeys(dim1_Keys);
 	}
-	for (u_int b1id = block[0]; b1id <= block[1]; ++b1id) {
-		double mi_max = -1.0e200;
+	for (auto b1id = block[0]; b1id <= block[1]; ++b1id) {
+		//double mi_max = -1.0e200;
 		u_int tmp_d1 = dim1_Keys[b1id];
 		std::vector<u_int> b_neigh;
 		if (d1type == 'B' && d2type == 'B') {
@@ -275,7 +276,7 @@ void getMaxCrossMI2D(const SubsetData &subset, const Neighbors &neigh,
 		std::vector<double> &mi_data) {
 
 	u_int dataIdx = 0;
-	u_int maxMIsIdx = 0;
+	//u_int maxMIsIdx = 0;
 	std::map<u_int, u_int> id2indx1;
 	std::map<u_int, u_int> id2indx2;
 
@@ -328,7 +329,7 @@ void getMaxCrossMI2D(const SubsetData &subset, const Neighbors &neigh,
 		neigh.torsionKeys(dim1_Keys);
 	}
 	for (u_int b1id = 0; b1id < dim1_Keys.size(); ++b1id) {
-		double mi_max = -1.0e200;
+		//double mi_max = -1.0e200;
 		u_int tmp_d1 = dim1_Keys[b1id];
 		std::vector<u_int> b_neigh;
 		if (d1type == 'B' && d2type == 'B') {

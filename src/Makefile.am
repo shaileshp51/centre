@@ -17,7 +17,6 @@ centre_OMPMPI_SOURCES= \
 				Netcdf_BAT.cpp \
 				NetcdfFile.cpp \
 				Netcdf_TrjInt.cpp \
-				Timer.cpp \
 				Version.h \
 				Centre.h \
 				Constants.h \
@@ -46,7 +45,8 @@ centre_OMPMPI_SOURCES= \
 				Netcdf_EntContri.cpp \
 				Netcdf_HistUtils.cpp \
 				Real2Int.cpp \
-				Utils.cpp
+				Utils.cpp \
+				main_common.cpp 
 centre_OMPMPI_SOURCES+= main_mpi.cpp
 else
 bin_PROGRAMS=centre_OMP
@@ -66,7 +66,6 @@ centre_OMP_SOURCES= \
 				Netcdf_BAT.cpp \
 				NetcdfFile.cpp \
 				Netcdf_TrjInt.cpp \
-				Timer.cpp \
 				Version.h \
 				Centre.h \
 				Inputs.h \
@@ -94,7 +93,8 @@ centre_OMP_SOURCES= \
 				Netcdf_EntContri.cpp \
 				Netcdf_HistUtils.cpp \
 				Real2Int.cpp \
-				Utils.cpp
+				Utils.cpp \
+				main_common.cpp
 centre_OMP_SOURCES+= main_smp.cpp 
 endif
 

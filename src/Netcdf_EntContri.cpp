@@ -52,15 +52,6 @@ void DimEntropy::setId(const u_int &in) {
 	dimid_[0] = in;
 }
 
-//void DimEntropy::setDimContri(const hbin_t estm_id, const hbin_t step_id,
-//      const hbin_t start_bin_scheme_id, const hbin_t bin_scheme_count,
-//      const std::vector<double>& in) {
-//   hbin_t end_ = start_bin_scheme_id + bin_scheme_count;
-//   for (hbin_t i = start_bin_scheme_id, j = 0; i < end_; ++i, ++j) {
-//      contri_S_[(estm_id * nbin_schemes_ * nsteps_) + ((int) i * nsteps_) + (int) step_id] = in[j];
-//   }
-//}
-
 void DimEntropy::setDimContri(const hbin_t start_estm, const hbin_t count_estm,
 		const hbin_t start_step_id, const hbin_t steps_count,
 		const hbin_t start_bin_scheme_id, const hbin_t bin_scheme_count,
@@ -101,16 +92,12 @@ void DimEntropy::setDimContri(const hbin_t start_estm, const hbin_t count_estm,
 	}
 }
 
-//void DimEntropy::setDimContri(hbin_t step_id, hbin_t bin_id, double value) {
-//   contri_S_[(bin_id * nsteps_) + step_id] = value;
-//}
-
 std::ostream& operator<<(std::ostream &os, const DimEntropy &bg) {
 	os
 			<< "++++++++++++++++++++++++++++++++++++ DimEntContri Object +++++++++++++++++++++++++++++++++++"
 			<< std::endl;
 	os << "Record Id: {";
-	for (int i = 0; i < bg.dimid_.size(); ++i) {
+	for (size_t i = 0U; i < bg.dimid_.size(); ++i) {
 		os << (int) bg.dimid_[i];
 		if (i + 1 != bg.dimid_.size())
 			os << ", ";
@@ -121,7 +108,7 @@ std::ostream& operator<<(std::ostream &os, const DimEntropy &bg) {
 
 	os << "Ent Contribution (nstep x nbin): {" << (int) bg.nsteps_ << ", "
 			<< (int) bg.nbin_schemes_ << "}" << std::endl;
-	for (int i = 0; i < bg.nbin_schemes_; ++i) {
+	for (size_t i = 0U; i < bg.nbin_schemes_; ++i) {
 		std::cout << "Scheme [" << (i + 1) << "]: ";
 		for (int j = 0; j < bg.nsteps_; ++j) {
 			os << (double) bg.contri_S_[i * bg.nsteps_ + j];
@@ -290,10 +277,6 @@ int Netcdf_EntContri::readRecords(const size_t start_index,
 			DimEntropy(0, nsteps_, bin_schemes_count_, nestimators_));
 	std::vector<u_int> ids_v(rec_counts * order_);
 	std::vector<double> contri_S_v(rec_counts * nsteps_ * bin_schemes_count_);
-#ifdef DEBUG_CODE
-	std::cout << "Freq: (" << contri_S_v.size() << ", " << contri_S_v.size()
-			<< ") " << std::endl;
-#endif
 
 	setupRead();
 
@@ -339,11 +322,7 @@ int Netcdf_EntContri::readRecords(const size_t start_index,
 				k, contri_S_v);
 		k += (nestimators_ * nsteps_ * bin_schemes_count_);
 	}
-#ifdef DEBUG_CODE_2
-	std::cout << "Record Bin Contri: start: [" << start[0] << ", " << start[1] << ", " << start[2];
-	std::cout << "] count: [" << count[0] << ", " << count[1] << ", " << count[2] << "]"
-	<< std::endl;
-#endif
+
 	if (is_append) {
 		addRecords(rd);
 	} else {
@@ -449,15 +428,12 @@ int Netcdf_EntContri::readEntrContrib(const u_int start_index,
 
 int Netcdf_EntContri::writeRecord(DimEntropy &rec) {
 	setupWrite();
-	hbin_t szid, nestm, nsteps, nbin_schemes, nbins_frq;
+	hbin_t szid, nestm, nsteps, nbin_schemes;
 	double *contri;
 	u_int *id;
 	rec.getId(&szid, &id);
 	size_t start[4], count[4];
-#ifdef DEBUG_CODE_2
-	std::cout << "Writing EntContri Records in file: " << nrecords << ", order: " << (int) szid << " Id: " << *id
-	<< std::endl;
-#endif
+	
 	start[0] = nrecords;
 	count[0] = 1;
 
@@ -467,11 +443,7 @@ int Netcdf_EntContri::writeRecord(DimEntropy &rec) {
 	if (checkNCerr(nc_put_vara_uint(ncid_, recordIdVID_, start, count, id))) {
 		mprinterr("Error: Writing record Id data.\n");
 		return 1;
-	} else {
-#ifdef DEBUG_CODE_2
-		std::cout << " Variable ID written successfully...";
-#endif
-	}
+	} 
 
 	rec.getDimContri(&nestm, &nsteps, &nbin_schemes, &contri);
 	start[1] = 0;
@@ -482,23 +454,13 @@ int Netcdf_EntContri::writeRecord(DimEntropy &rec) {
 
 	start[3] = 0;
 	count[3] = nsteps_;
-#ifdef DEBUG_CODE_2
-	std::cout << "Record ID: start: [" << start[0] << ", " << start[1] << ", " << start[2];
-	std::cout << "] count: [" << count[0] << ", " << count[1] << ", " << count[2] << "]"
-	<< std::endl;
-#endif
+
 	if (checkNCerr(
 			nc_put_vara_double(ncid_, contri_SVID_, start, count, contri))) {
 		mprinterr("Error: Writing entropy contribution data.\n");
 		return 1;
-	} else {
-#ifdef DEBUG_CODE_2
-		std::cout << " Contribution written successfully...";
-#endif
-	}
-#ifdef DEBUG_CODE_2
-	std::cout << "Record Id: " << *id;
-#endif
+	} 
+
 	NC_close();
 	return 0;
 }
@@ -513,10 +475,7 @@ int Netcdf_EntContri::writeRecords(std::vector<DimEntropy> &recs) {
 		double *contri_S;
 		(recs[0]).getId(&szid, &id);
 		size_t start[4], count[4];
-#ifdef DEBUG_CODE
-		std::cout << "Writing EntContriRecords in file: nrecords x recdim: ["
-				<< nrecs << ", " << (int) szid << "]" << std::endl;
-#endif
+
 		std::vector<u_int> ids_v(szid * nrecs);
 		size_t k = 0;
 		for (size_t i = 0; i < nrecs; ++i) {
@@ -531,12 +490,6 @@ int Netcdf_EntContri::writeRecords(std::vector<DimEntropy> &recs) {
 
 		start[1] = 0;
 		count[1] = szid;
-
-#ifdef DEBUG_CODE
-		std::cout << "Record ID: start: [" << start[0] << ", " << start[1]
-				<< "] count: [" << count[0] << ", " << count[1] << "]: "
-				<< ids_v.size() << std::endl;
-#endif
 
 		if (checkNCerr(
 				nc_put_vara_uint(ncid_, recordIdVID_, start, count,
@@ -572,27 +525,13 @@ int Netcdf_EntContri::writeRecords(std::vector<DimEntropy> &recs) {
 		start[3] = 0;
 		count[3] = nsteps;
 
-#ifdef DEBUG_CODE
-		std::cout << "Entropy Record Data: start: [" << start[0] << ", "
-				<< start[1] << ", " << start[2] << ", " << start[3];
-		std::cout << "] count: [" << count[0] << ", " << count[1] << ", "
-				<< count[2] << ", " << count[3] << "] " << contri_S_v.size()
-				<< std::endl;
-#endif
-
 		if (checkNCerr(
 				nc_put_vara_double(ncid_, contri_SVID_, start, count,
 						contri_S_v.data()))) {
 			mprinterr("Error: Writing record data.\n");
 			return 1;
 		}
-#ifdef DEBUG_CODE
-		std::cout << "Record Bin Freqs: start: [" << start[0] << ", "
-				<< start[1] << ", " << start[2];
-		std::cout << "] count: [" << count[0] << ", " << count[1] << ", "
-				<< count[2] << "]" << std::endl;
-		// std::cout << "Record Id: " << *id << std::endl;
-#endif
+
 		NC_close();
 	}
 	return 0;
@@ -639,16 +578,7 @@ int Netcdf_EntContri::NC_create(std::string &filename,
 		std::string const &title) {
 	if (filename.empty())
 		return 1;
-	int dimensionID[NC_MAX_VAR_DIMS];
 
-	nc_type dataType;
-	NCTYPE type = NCTYPE::NC_CENTREHIST;
-	/*
-	 if (ncdebug_>1)
-	 mprintf("DEBUG: NC_create: %s  natom=%i V=%i  box=%i  temp=%i  time=%i\n",
-	 Name.c_str(),natomIn,(int)coordInfo.HasVel(),(int)coordInfo.HasBox(),
-	 (int)coordInfo.HasTemp(),(int)coordInfo.HasTime()); NETCDF3_64BIT_DATA
-	 * */
 	if (checkNCerr(
 			nc_create(filename.c_str(), NC_NOCLOBBER | NC_NETCDF4, &ncid_)))
 		return 1;

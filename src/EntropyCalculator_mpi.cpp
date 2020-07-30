@@ -78,7 +78,7 @@ void EntropyCalculator::run1d_mpi(BAT_t bat_type, const int rank,
 				str_dim_type, 1, 1, nsteps, dim_lens, TensorType::FULL,
 				bin_schemes, nestimators);
 
-		ptaskset->start = chrono::high_resolution_clock::now();
+		ptaskset->start = Clock::now();
 		ptaskset->current = ptaskset->start;
 		ptaskset->strt_read = ptaskset->curr_read = ptaskset->start;
 		ptaskset->strt_comp = ptaskset->curr_comp = ptaskset->start;
@@ -170,12 +170,12 @@ void EntropyCalculator::run1d_mpi(BAT_t bat_type, const int rank,
 			 * NUMBER OF SLAVES.
 			 */
 			size_t n_reads_curr_block = 0;
-			for (size_t process_idx = 1; process_idx < max_slave_rank;
+			for (size_t process_idx = 1; process_idx < (size_t)max_slave_rank;
 					++process_idx) {
 				/*
 				 * Read descretized data needed from file for a slave process
 				 */
-				auto _startr = chrono::high_resolution_clock::now();
+				auto _startr = Clock::now();
 				for (int idx = 0; idx < curr_cache_per_proc; ++idx) {
 					const u_int dim_id = inputs.getSubset().getBATTypeId(
 							bat_type, bl_strat_id + n_reads_curr_block + idx);
@@ -183,7 +183,7 @@ void EntropyCalculator::run1d_mpi(BAT_t bat_type, const int rank,
 					if (ptr_int_traj_d1d->readCoords(dim_id, 0,
 							(hbin_t) n_schemes, crd[idx]) != 0) {
 						LOG_ERROR(
-								"Rank[%d]>> for rank[%d] reading %s-int data for id(%d)",
+								"Rank[%d]>> for rank[%ld] reading %s-int data for id(%d)",
 								rank, process_idx, str_dim_type.c_str(),
 								dim_id);
 					}
@@ -191,36 +191,37 @@ void EntropyCalculator::run1d_mpi(BAT_t bat_type, const int rank,
 							&d1ds_extrm_v[idx][1], &d1ds_extrm_v[idx][2],
 							&d1ds_extrm_v[idx][3], &n_schemes,
 							&nfrm_eff_entropy, &d1ds_int_v[idx]);
-					LOG_DEBUG("Rank[%d]>> for rank[%d], successfully read %s-int data for id(%d)", rank, process_idx, str_dim_type.c_str(),
+					LOG_DEBUG("Rank[%d]>> for rank[%ld], successfully read %s-int data for id(%d)", rank, process_idx, str_dim_type.c_str(),
 							dim_id);
 				}
 
-				auto _endr = chrono::high_resolution_clock::now();
-				auto _dur_rd = chrono::duration_cast<chrono::nanoseconds>(
+				auto _endr = Clock::now();
+				auto _dur_rd = chrono::duration_cast<ClockResolution>(
 						_endr - _startr).count();
-				ptaskset->curr_read += chrono::nanoseconds(_dur_rd);
-				progressstate.entc.curr_read += chrono::nanoseconds(_dur_rd);
+				ptaskset->curr_read += ClockResolution(_dur_rd);
+				progressstate.entc.curr_read += ClockResolution(_dur_rd);
 
 				/*
 				 * Send data for bin frequency calculation and entropy estimation to the slave process
 				 */
 				for (int idx = 0; idx < curr_cache_per_proc; ++idx) {
-					const u_int dim_id = inputs.getSubset().getBATTypeId(
-							bat_type, bl_strat_id + n_reads_curr_block + idx);
+					//const u_int dim_id = inputs.getSubset().getBATTypeId(
+					//		bat_type, bl_strat_id + n_reads_curr_block + idx);
 					MPI_Send(d1ds_extrm_v[idx].data(), 4, MPI_DOUBLE,
 							process_idx, DIM_EXTRM_TAG, MPI_COMM_WORLD);
 					MPI_Send(d1ds_int_v[idx], n_schemes * nframes_tot_eff,
 					MPI_UNSIGNED_CHAR, process_idx,
 					DIM_INT_TAG, MPI_COMM_WORLD);
 
-					LOG_DEBUG("Rank[%d]>> => Rank[%d] %s id(%d) sent(%d) ints", rank, process_idx, str_dim_type.c_str(), dim_id, n_schemes * nframes_tot_eff);
+					LOG_DEBUG("Rank[%d]>> => Rank[%ld] %s id(%d) sent(%lld) ints", rank, process_idx, str_dim_type.c_str(), inputs.getSubset().getBATTypeId(
+							bat_type, bl_strat_id + n_reads_curr_block + idx), n_schemes * nframes_tot_eff);
 
 				}
-				auto _endcomm1 = chrono::high_resolution_clock::now();
-				auto _durcomm1 = chrono::duration_cast<chrono::nanoseconds>(
+				auto _endcomm1 = Clock::now();
+				auto _durcomm1 = chrono::duration_cast<ClockResolution>(
 						_endcomm1 - _endr).count();
-				ptaskset->curr_comm += chrono::nanoseconds(_durcomm1);
-				progressstate.entc.curr_comm += chrono::nanoseconds(_durcomm1);
+				ptaskset->curr_comm += ClockResolution(_durcomm1);
+				progressstate.entc.curr_comm += ClockResolution(_durcomm1);
 				n_reads_curr_block += curr_cache_per_proc;
 			}
 			/*
@@ -271,7 +272,7 @@ void EntropyCalculator::run1d_mpi(BAT_t bat_type, const int rank,
 				/*
 				 * Reading data from file for master process itself.
 				 */
-				auto _startr = chrono::high_resolution_clock::now();
+				auto _startr = Clock::now();
 				for (int idx = 0; idx < n_task4master; ++idx) {
 					const u_int dim_id = inputs.getSubset().getBATTypeId(
 							bat_type, bl_strat_id + n_reads_curr_block + idx);
@@ -289,12 +290,12 @@ void EntropyCalculator::run1d_mpi(BAT_t bat_type, const int rank,
 					LOG_DEBUG("Rank[%d]>> Successfully read %s-int data for id(%d)", rank, str_dim_type.c_str(),
 							dim_id);
 				}
-				auto _endr = chrono::high_resolution_clock::now();
-				auto _dur_rd = chrono::duration_cast<chrono::nanoseconds>(
+				auto _endr = Clock::now();
+				auto _dur_rd = chrono::duration_cast<ClockResolution>(
 						_endr - _startr).count();
-				ptaskset->curr_read += chrono::nanoseconds(_dur_rd);
-				progressstate.entc.curr_read += chrono::nanoseconds(_dur_rd);
-				auto _startcomp = chrono::high_resolution_clock::now();
+				ptaskset->curr_read += ClockResolution(_dur_rd);
+				progressstate.entc.curr_read += ClockResolution(_dur_rd);
+				auto _startcomp = Clock::now();
 				/*
 				 * Computing bin frequency and entropy for task on master process.
 				 */
@@ -306,7 +307,7 @@ void EntropyCalculator::run1d_mpi(BAT_t bat_type, const int rank,
 							d1ds_extrm_v_master[idx][1], d1ds_int_v_master[idx],
 							freq_obs_v_master[idx], bin_mids_v_master[idx])
 							!= 0) {
-						LOG_ERROR("Rank[%d]>> binning %s data id(%d)", rank,
+						LOG_ERROR("Rank[%d]>> binning %s data id(%ld)", rank,
 								str_dim_type.c_str(), did);
 					} else {
 						entropy1D(bat_type, did, inputs.getEstimators(), nsteps,
@@ -335,20 +336,20 @@ void EntropyCalculator::run1d_mpi(BAT_t bat_type, const int rank,
 								nsteps, 0, n_schemes, entropy_v_master[idx]);
 					}
 				}
-				auto _endcomp = chrono::high_resolution_clock::now();
-				auto _durcomp = chrono::duration_cast<chrono::nanoseconds>(
+				auto _endcomp = Clock::now();
+				auto _durcomp = chrono::duration_cast<ClockResolution>(
 						_endcomp - _startcomp).count();
-				ptaskset->curr_comp += chrono::nanoseconds(_durcomp);
-				progressstate.entc.curr_comp += chrono::nanoseconds(_durcomp);
+				ptaskset->curr_comp += ClockResolution(_durcomp);
+				progressstate.entc.curr_comp += ClockResolution(_durcomp);
 
 			}
 
 			MPI_Barrier(MPI_COMM_WORLD);
 			int n_gather_curr_block = 0;
 			int n_prepared2write_curr_block = 0;
-			for (size_t process_idx = 1; process_idx < max_slave_rank;
+			for (size_t process_idx = 1; process_idx < (size_t)max_slave_rank;
 					++process_idx) {
-				auto _startcomm = chrono::high_resolution_clock::now();
+				auto _startcomm = Clock::now();
 				for (int idx = 0; idx < curr_cache_per_proc; ++idx) {
 					MPI_Recv(bin_mids_v[idx].data(), bin_schemes_sum,
 					MPI_DOUBLE, process_idx,
@@ -368,14 +369,14 @@ void EntropyCalculator::run1d_mpi(BAT_t bat_type, const int rank,
 							MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
 					n_gather_curr_block++;
-					LOG_DEBUG("Rank[%d]>> <= Rank[%d] receiving entropy contribution id(%d)", rank, process_idx, bl_strat_id + idx);
+					LOG_DEBUG("Rank[%d]>> <= Rank[%ld] receiving entropy contribution id(%d)", rank, process_idx, bl_strat_id + idx);
 				}
-				auto _endcomm = chrono::high_resolution_clock::now();
-				auto _durcomm = chrono::duration_cast<chrono::nanoseconds>(
+				auto _endcomm = Clock::now();
+				auto _durcomm = chrono::duration_cast<ClockResolution>(
 						_startcomm - _endcomm).count();
-				ptaskset->curr_comm += chrono::nanoseconds(_durcomm);
-				progressstate.entc.curr_comm += chrono::nanoseconds(_durcomm);
-				for (size_t idx = 0; idx < curr_cache_per_proc; ++idx) {
+				ptaskset->curr_comm += ClockResolution(_durcomm);
+				progressstate.entc.curr_comm += ClockResolution(_durcomm);
+				for (size_t idx = 0; idx < (size_t)curr_cache_per_proc; ++idx) {
 					const u_int dim_id = inputs.getSubset().getBATTypeId(
 							bat_type,
 							bl_strat_id + n_prepared2write_curr_block);
@@ -405,11 +406,11 @@ void EntropyCalculator::run1d_mpi(BAT_t bat_type, const int rank,
 					}
 				}
 				ent_dim1d->writeRecords(dimentropy_v);
-				auto _endwrt = chrono::high_resolution_clock::now();
-				auto _durwrt = chrono::duration_cast<chrono::nanoseconds>(
+				auto _endwrt = Clock::now();
+				auto _durwrt = chrono::duration_cast<ClockResolution>(
 						_endwrt - _endcomm).count();
-				ptaskset->curr_write += chrono::nanoseconds(_durwrt);
-				progressstate.entc.curr_write += chrono::nanoseconds(_durwrt);
+				ptaskset->curr_write += ClockResolution(_durwrt);
+				progressstate.entc.curr_write += ClockResolution(_durwrt);
 			}
 			if (n_task4master > 0) {
 				/*
@@ -428,7 +429,7 @@ void EntropyCalculator::run1d_mpi(BAT_t bat_type, const int rank,
 				ent_dim1d->writeRecords(dimentropy_v_master);
 			}
 
-			ptaskset->current = chrono::high_resolution_clock::now();
+			ptaskset->current = Clock::now();
 			progressstate.entc.current = ptaskset->current;
 			ptaskset->done_tasks += block_tasks;
 			progressstate.entc.done_tasks += block_tasks;
@@ -444,7 +445,7 @@ void EntropyCalculator::run1d_mpi(BAT_t bat_type, const int rank,
 			}
 			MPI_Barrier(MPI_COMM_WORLD);
 		}
-		ptaskset->current = chrono::high_resolution_clock::now();
+		ptaskset->current = Clock::now();
 		ptaskset->cstt = ExecState::COMPLETED;
 		progressstate.entc.current = ptaskset->current;
 
@@ -520,8 +521,8 @@ void EntropyCalculator::run1d_mpi(BAT_t bat_type, const int rank,
 		int n_cpus = numprocs * n_thread_perproc;
 		int chached_dims = chache_dims_per_proc * n_cpus;
 
-		int block_tasks = 0, block_start_id = 0, curr_cache_per_proc = 0,
-				max_slave_rank = 0;
+		int curr_cache_per_proc = 0,
+				max_slave_rank = 0; // block_tasks = 0, block_start_id = 0
 		int bl_details[4];
 		// Process local variables for data receiving and processing
 		fflush(stdout);
@@ -530,8 +531,8 @@ void EntropyCalculator::run1d_mpi(BAT_t bat_type, const int rank,
 				chached_dims) {
 			MPI_Bcast(&bl_details, 4, MPI_INT, MASTER_PROC, MPI_COMM_WORLD);
 			MPI_Barrier(MPI_COMM_WORLD);
-			block_start_id = bl_details[0];
-			block_tasks = bl_details[1];
+			//block_start_id = bl_details[0];
+			//block_tasks = bl_details[1];
 			curr_cache_per_proc = bl_details[2];
 			max_slave_rank = bl_details[3];
 
@@ -565,7 +566,7 @@ void EntropyCalculator::run1d_mpi(BAT_t bat_type, const int rank,
 							n_schemes * nframes_tot_eff,
 							MPI_UNSIGNED_CHAR, MASTER_PROC,
 							DIM_INT_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-					LOG_DEBUG("Rank[%d]>> <= Rank[%d] %s id(%d) received %d ints", rank, MASTER_PROC, str_dim_type.c_str(), inputs.getSubset().getBATTypeId(
+					LOG_DEBUG("Rank[%d]>> <= Rank[%d] %s id(%d) received %lld ints", rank, MASTER_PROC, str_dim_type.c_str(), inputs.getSubset().getBATTypeId(
 									bat_type, bl_strat_id + n_reads_curr_block + idx), n_schemes * nframes_tot_eff);
 				}
 				n_reads_curr_block += curr_cache_per_proc;
@@ -586,7 +587,7 @@ void EntropyCalculator::run1d_mpi(BAT_t bat_type, const int rank,
 							d1ds_extrm_v[idx][0], d1ds_extrm_v[idx][1],
 							d1ds_int_v[idx].data(), freq_obs_v[idx],
 							bin_mids_v[idx]) != 0) {
-						LOG_ERROR("Rank[%d]>> %s binning data id(%d)", rank,
+						LOG_ERROR("Rank[%d]>> %s binning data id(%ld)", rank,
 								str_dim_type.c_str(), did);
 					} else {
 						entropy1D(bat_type, did, inputs.getEstimators(), nsteps,
@@ -603,7 +604,7 @@ void EntropyCalculator::run1d_mpi(BAT_t bat_type, const int rank,
 			 * SENDING BACK COMPUTED BIN-MIDPOINTS, BIN-FREQUENCY AND ENTROPY RESULTS TO MASTER PROCESS
 			 */
 			if (rank < max_slave_rank) {
-				// auto _startcomm = chrono::high_resolution_clock::now();
+				// auto _startcomm = Clock::now();
 				for (int idx = 0; idx < curr_cache_per_proc; ++idx) {
 					MPI_Send(bin_mids_v[idx].data(), bin_schemes_sum,
 					MPI_DOUBLE, MASTER_PROC,
@@ -620,7 +621,7 @@ void EntropyCalculator::run1d_mpi(BAT_t bat_type, const int rank,
 							MPI_DOUBLE, MASTER_PROC, DIM_ENTR_TAG,
 							MPI_COMM_WORLD);
 
-					LOG_DEBUG("Rank[%d]>> => Rank[%d] sending entropy contribution id(%d)", rank, MASTER_PROC, bl_strat_id + idx);
+					LOG_DEBUG("Rank[%d]>> => Rank[%d] sending entropy contribution id(%u)", rank, MASTER_PROC, bl_strat_id + idx);
 				}
 
 			}
@@ -735,7 +736,7 @@ void EntropyCalculator::run2d_xx_mpi(BATSet dim_type, const int rank,
 				str_dim_type, 2, 2, nsteps, dim_lens, TensorType::UPPER,
 				bin_schemes, nestimators);
 
-		ptaskset->start = chrono::high_resolution_clock::now();
+		ptaskset->start = Clock::now();
 		ptaskset->current = ptaskset->start;
 		ptaskset->strt_read = ptaskset->curr_read = ptaskset->start;
 		ptaskset->strt_comp = ptaskset->curr_comp = ptaskset->start;
@@ -756,14 +757,14 @@ void EntropyCalculator::run2d_xx_mpi(BATSet dim_type, const int rank,
 		ptr_ent_xx2d->NC_create(str_dim_type + " 2-D Entropy contributions");
 
 		vector<u_int> block_boundry(5);
-		int block_count = 0, block_tasks = 0;
-		bool block_ready = false;
+		//int block_count = 0, block_tasks = 0;
+		//bool block_ready = false;
 
 		const u_int num_dim_neigh_keys = dim_neigh_keys.size();
 
 		int chache_dims_per_proc = cache_entc_dims_per_cpu * n_thread_perproc
 				/ 2;
-		int n_cpus = numprocs * n_thread_perproc;
+		//int n_cpus = numprocs * n_thread_perproc;
 		int chached_dims = chache_dims_per_proc * numprocs;
 
 		MPI_Barrier(MPI_COMM_WORLD);
@@ -781,22 +782,22 @@ void EntropyCalculator::run2d_xx_mpi(BATSet dim_type, const int rank,
 					(bi + chache_dims_per_proc <= num_dim_neigh_keys) ?
 							chache_dims_per_proc : (num_dim_neigh_keys - bi);
 
-			int row_cache_info[2];
-			row_cache_info[0] = bi;
-			row_cache_info[1] = bl_rows;
+			//int row_cache_info[2];
+			//row_cache_info[0] = bi;
+			//row_cache_info[1] = bl_rows;
 
 			LOG_DEBUG("Rank[%d]>> Bcast row-cache-info [bl_start=%d, bl_rows=%d] for %s",
-					rank, row_cache_info[0], row_cache_info[1], str_dim_type.c_str());
+					rank, bi, bl_rows, str_dim_type.c_str());
 
 			vector<hbin_t*> dtyps1_int_v(bl_rows);
 			vector<vector<double>> dtyps1_extrm_v(bl_rows,
 					vector<double>(4, 0.0));
 			vector<CoordBAT> crd_rows(bl_rows,
 					CoordBAT(0, n_schemes, nframes_tot_eff));
-			std: map<u_int, u_int> row_id2index;
+			map<u_int, u_int> row_id2index;
 			vector<u_int> vec_row_id2index(2 * bl_rows);
 			// Fill Cache with rows
-			auto _startr = chrono::high_resolution_clock::now();
+			auto _startr = Clock::now();
 			for (auto rno = 0; rno < bl_rows; ++rno) {
 				const u_int dtyp_id1 = dim_neigh_keys[bi + rno];
 				row_id2index[dtyp_id1] = rno;
@@ -813,29 +814,29 @@ void EntropyCalculator::run2d_xx_mpi(BATSet dim_type, const int rank,
 						&dtyps1_extrm_v[rno][3], &n_schemes, &nfrm_eff_entropy,
 						&dtyps1_int_v[rno]);
 			}
-			auto _endr = chrono::high_resolution_clock::now();
-			auto _dur_rd = chrono::duration_cast<chrono::nanoseconds>(
+			auto _endr = Clock::now();
+			auto _dur_rd = chrono::duration_cast<ClockResolution>(
 					_endr - _startr).count();
-			ptaskset->curr_read += chrono::nanoseconds(_dur_rd);
-			progressstate.entc.curr_read += chrono::nanoseconds(_dur_rd);
+			ptaskset->curr_read += ClockResolution(_dur_rd);
+			progressstate.entc.curr_read += ClockResolution(_dur_rd);
 
 			/*
 			 * Send data for bin frequency calculation and entropy estimation to the slave process
 			 */
 			for (int idx = 0; idx < bl_rows; ++idx) {
-				const u_int dim_id = dim_neigh_keys[bi + idx];
+				//const u_int dim_id = dim_neigh_keys[bi + idx];
 				MPI_Bcast(dtyps1_extrm_v[idx].data(), 4, MPI_DOUBLE,
 				MASTER_PROC, MPI_COMM_WORLD);
 				MPI_Bcast(dtyps1_int_v[idx], n_schemes * nframes_tot_eff,
 				MPI_UNSIGNED_CHAR, MASTER_PROC, MPI_COMM_WORLD);
 
-				LOG_DEBUG("Rank[%d]>> Bcast %d ints of row id(%d) for %s", rank, n_schemes * nframes_tot_eff, dim_id, str_dim_type.c_str());
+				LOG_DEBUG("Rank[%d]>> Bcast %lld ints of row id(%d) for %s", rank, n_schemes * nframes_tot_eff, dim_neigh_keys[bi + idx], str_dim_type.c_str());
 			}
-			auto _endcomm1 = chrono::high_resolution_clock::now();
-			auto _durcomm1 = chrono::duration_cast<chrono::nanoseconds>(
+			auto _endcomm1 = Clock::now();
+			auto _durcomm1 = chrono::duration_cast<ClockResolution>(
 					_endcomm1 - _endr).count();
-			ptaskset->curr_comm += chrono::nanoseconds(_durcomm1);
-			progressstate.entc.curr_comm += chrono::nanoseconds(_durcomm1);
+			ptaskset->curr_comm += ClockResolution(_durcomm1);
+			progressstate.entc.curr_comm += ClockResolution(_durcomm1);
 
 			MPI_Barrier(MPI_COMM_WORLD);
 			for (u_int bj = 0; bj < n_dim_eff; bj += chached_dims) {
@@ -850,11 +851,11 @@ void EntropyCalculator::run2d_xx_mpi(BATSet dim_type, const int rank,
 					max_slave_rank = ceil(
 							(double) bl_cols / (curr_col_cache_per_proc));
 				}
-				int col_cache_info[4];
-				col_cache_info[0] = bj;
-				col_cache_info[1] = bl_cols;
-				col_cache_info[2] = curr_col_cache_per_proc;
-				col_cache_info[3] = max_slave_rank;
+				//int col_cache_info[4];
+				//col_cache_info[0] = bj;
+				//col_cache_info[1] = bl_cols;
+				//col_cache_info[2] = curr_col_cache_per_proc;
+				//col_cache_info[3] = max_slave_rank;
 
 				MPI_Barrier(MPI_COMM_WORLD);
 
@@ -931,7 +932,7 @@ void EntropyCalculator::run2d_xx_mpi(BATSet dim_type, const int rank,
 								CoordBAT(0, n_schemes, nframes_tot_eff));
 
 						// read and cache cols
-						auto _startr2 = chrono::high_resolution_clock::now();
+						auto _startr2 = Clock::now();
 						for (map<u_int, u_int>::iterator it =
 								read_cols_dims.begin();
 								it != read_cols_dims.end(); ++it) {
@@ -939,7 +940,7 @@ void EntropyCalculator::run2d_xx_mpi(BATSet dim_type, const int rank,
 							if (ptr_int_traj_xx2d->readCoords(it->first, 0,
 									n_schemes, crd_cols[it->second]) != 0) {
 								LOG_ERROR(
-										"Rank[%d]>> reading %d ints of column id(%d) for %s",
+										"Rank[%d]>> reading %lld ints of column id(%d) for %s",
 										rank, n_schemes * nframes_tot_eff,
 										it->first, str_dim_type.c_str());
 							}
@@ -951,11 +952,11 @@ void EntropyCalculator::run2d_xx_mpi(BATSet dim_type, const int rank,
 									&nfrm_eff_entropy,
 									&dtyps2_int_v[it->second]);
 						}
-						auto _endr2 = chrono::high_resolution_clock::now();
+						auto _endr2 = Clock::now();
 						auto _dur2_rd = chrono::duration_cast<
-								chrono::nanoseconds>(_endr2 - _startr2).count();
-						ptaskset->curr_read += chrono::nanoseconds(_dur2_rd);
-						progressstate.entc.curr_read += chrono::nanoseconds(
+								ClockResolution>(_endr2 - _startr2).count();
+						ptaskset->curr_read += ClockResolution(_dur2_rd);
+						progressstate.entc.curr_read += ClockResolution(
 								_dur2_rd);
 
 						for (map<u_int, u_int>::iterator it =
@@ -969,23 +970,23 @@ void EntropyCalculator::run2d_xx_mpi(BATSet dim_type, const int rank,
 									MPI_UNSIGNED_CHAR, process_idx,
 									XnX_INT_TAG, MPI_COMM_WORLD);
 
-							LOG_DEBUG("Rank[%d]>> => Rank[%d] sent %d ints of column-id(%d) for for %s",
+							LOG_DEBUG("Rank[%d]>> => Rank[%d] sent %lld ints of column-id(%d) for for %s",
 									rank, process_idx, n_schemes * nframes_tot_eff, it->first, str_dim_type.c_str());
 
 						}
 
-						auto _endcomm1 = chrono::high_resolution_clock::now();
+						auto _endcomm1 = Clock::now();
 						auto _durcomm1 = chrono::duration_cast<
-								chrono::nanoseconds>(_endcomm1 - _endr).count();
-						ptaskset->curr_comm += chrono::nanoseconds(_durcomm1);
-						progressstate.entc.curr_comm += chrono::nanoseconds(
+								ClockResolution>(_endcomm1 - _endr).count();
+						ptaskset->curr_comm += ClockResolution(_durcomm1);
+						progressstate.entc.curr_comm += ClockResolution(
 								_durcomm1);
 					}
 				}
 
 				LOG_DEBUG("Rank[%d]>> scattering columns ints to slaves completed", rank);
 
-				int n_cols4master = bl_cols - n_cols_sent2slaves;
+				//int n_cols4master = bl_cols - n_cols_sent2slaves;
 
 				u_int master_tasks = 0, mastercol_idx = 0;
 				map<u_int, u_int> masterread_cols_dims;
@@ -1013,9 +1014,9 @@ void EntropyCalculator::run2d_xx_mpi(BATSet dim_type, const int rank,
 					}
 				}
 
-				u_int n_mastercache_cols = masterread_cols_dims.size();
+				//u_int n_mastercache_cols = masterread_cols_dims.size();
 				LOG_DEBUG("Rank[%d]>> data for %s [block_tasks=%d, read_cols_dims=%d]",
-						rank, str_dim_type.c_str(), master_tasks, n_mastercache_cols);
+						rank, str_dim_type.c_str(), master_tasks, masterread_cols_dims.size());
 
 				vector<hbin_t*> dtyps2_int_v_master;
 				vector<vector<double>> bnds2_extrm_v_master;
@@ -1044,7 +1045,7 @@ void EntropyCalculator::run2d_xx_mpi(BATSet dim_type, const int rank,
 						vec_masterid2index[ii + 2] = it->second;
 						ii += 3;
 					}
-					for (int it4master = 0; it4master < master_tasks;
+					for (int it4master = 0; it4master < (int)master_tasks;
 							++it4master) {
 						hbin_t *hbptr;
 						dtyps2_int_v_master.push_back(hbptr);
@@ -1069,7 +1070,7 @@ void EntropyCalculator::run2d_xx_mpi(BATSet dim_type, const int rank,
 					}
 
 					// read and cache cols
-					auto _startr2 = chrono::high_resolution_clock::now();
+					auto _startr2 = Clock::now();
 					for (map<u_int, u_int>::iterator it =
 							masterread_cols_dims.begin();
 							it != masterread_cols_dims.end(); ++it) {
@@ -1077,7 +1078,7 @@ void EntropyCalculator::run2d_xx_mpi(BATSet dim_type, const int rank,
 						if (ptr_int_traj_xx2d->readCoords(it->first, 0,
 								n_schemes, crd_cols_master[it->second]) != 0) {
 							LOG_ERROR(
-									"Rank[%d]>> reading %d ints of column id(%d) for %s",
+									"Rank[%d]>> reading %lld ints of column id(%d) for %s",
 									rank, n_schemes * nframes_tot_eff,
 									it->first, str_dim_type.c_str());
 
@@ -1093,17 +1094,17 @@ void EntropyCalculator::run2d_xx_mpi(BATSet dim_type, const int rank,
 
 					LOG_DEBUG("Rank[%d]>> Reading columns for master's tasks completed for %s", rank, str_dim_type.c_str());
 
-					auto _endr2 = chrono::high_resolution_clock::now();
-					auto _dur2_rd = chrono::duration_cast<chrono::nanoseconds>(
+					auto _endr2 = Clock::now();
+					auto _dur2_rd = chrono::duration_cast<ClockResolution>(
 							_endr2 - _startr2).count();
-					ptaskset->curr_read += chrono::nanoseconds(_dur2_rd);
-					progressstate.entc.curr_read += chrono::nanoseconds(
+					ptaskset->curr_read += ClockResolution(_dur2_rd);
+					progressstate.entc.curr_read += ClockResolution(
 							_dur2_rd);
 
-					auto _endcomm1 = chrono::high_resolution_clock::now();
+					auto _endcomm1 = Clock::now();
 
 #pragma omp parallel for
-					for (int idx = 0; idx < master_tasks; ++idx) {
+					for (int idx = 0; idx < (int)master_tasks; ++idx) {
 						auto rid = vec_masterid2index[3 * idx];
 						auto cid = vec_masterid2index[3 * idx + 1];
 						auto rno = row_id2index[rid];
@@ -1119,7 +1120,7 @@ void EntropyCalculator::run2d_xx_mpi(BATSet dim_type, const int rank,
 								dtyps2_int_v_master[cno],
 								freq2_bb_obs_v_master[idx],
 								bin2_bb_mids_v_master[idx]) != 0) {
-							LOG_ERROR("Rank[%d]>> binning data %s id(%d, %d)",
+							LOG_ERROR("Rank[%d]>> binning data %s id(%d, %d)", rank,
 									str_dim_type.c_str(), rid, cid);
 						}
 						entropy2D(dtype1st, dtype1st, rid, cid,
@@ -1156,17 +1157,17 @@ void EntropyCalculator::run2d_xx_mpi(BATSet dim_type, const int rank,
 								nsteps, 0, n_schemes, entropy_bb_v_master[idx]);
 
 					}
-					auto _endcomp = chrono::high_resolution_clock::now();
-					auto _durcomp = chrono::duration_cast<chrono::nanoseconds>(
+					auto _endcomp = Clock::now();
+					auto _durcomp = chrono::duration_cast<ClockResolution>(
 							_endcomp - _endcomm1).count();
-					ptaskset->curr_comp += chrono::nanoseconds(_durcomp);
-					progressstate.entc.curr_comp += chrono::nanoseconds(
+					ptaskset->curr_comp += ClockResolution(_durcomp);
+					progressstate.entc.curr_comp += ClockResolution(
 							_durcomp);
 				} LOG_DEBUG("Rank[%d]>> Computing entropy for master completed..", rank);
 				// start of receiving entropy and frequency data from slaves and writing to files
 				int n_gather_curr_block = 0;
-				int n_prepared2write_curr_block = 0;
-				for (size_t process_idx = 1; process_idx < max_slave_rank;
+				//int n_prepared2write_curr_block = 0;
+				for (size_t process_idx = 1; process_idx < (size_t)max_slave_rank;
 						++process_idx) {
 					u_int blcoks_tasks_slave = 0;
 					u_int slave_cols_block_tasks[2];
@@ -1175,7 +1176,7 @@ void EntropyCalculator::run2d_xx_mpi(BATSet dim_type, const int rank,
 							MPI_STATUS_IGNORE);
 					blcoks_tasks_slave = slave_cols_block_tasks[0];
 
-					LOG_DEBUG("Rank[%d]>> <= Rank[%d] received for %s [block_tasks=%d, read_cols_dims=%d]",
+					LOG_DEBUG("Rank[%d]>> <= Rank[%ld] received for %s [block_tasks=%d, read_cols_dims=%d]",
 							rank, process_idx, str_dim_type.c_str(), slave_cols_block_tasks[0],
 							slave_cols_block_tasks[1]);
 
@@ -1196,7 +1197,7 @@ void EntropyCalculator::run2d_xx_mpi(BATSet dim_type, const int rank,
 						MPI_UNSIGNED, process_idx, XnX_CMAP_TAG,
 						MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
-						LOG_DEBUG("Rrank[%d]>> <= Rank[%d] received block_task=%d row/col index-id vectors for %s",
+						LOG_DEBUG("Rrank[%d]>> <= Rank[%ld] received block_task=%d row/col index-id vectors for %s",
 								rank, process_idx, blcoks_tasks_slave, str_dim_type.c_str());
 
 						MPI_Recv(dd_extrema_block.data(),
@@ -1205,7 +1206,7 @@ void EntropyCalculator::run2d_xx_mpi(BATSet dim_type, const int rank,
 								MPI_COMM_WORLD,
 								MPI_STATUS_IGNORE);
 
-						LOG_DEBUG("Rank[%d]>> <= Rank[%d] received block_task=%d row/col index-id extremas=%d vectors for %s",
+						LOG_DEBUG("Rank[%d]>> <= Rank[%ld] received block_task=%d row/col index-id extremas=%d vectors for %s",
 								rank, process_idx, blcoks_tasks_slave, 8*blcoks_tasks_slave, str_dim_type.c_str());
 
 						vector<vector<ull_int>> freq2_bb_obs_v(
@@ -1229,8 +1230,8 @@ void EntropyCalculator::run2d_xx_mpi(BATSet dim_type, const int rank,
 								DimEntropy(dummy_ids_master, (hbin_t) nsteps,
 										n_schemes, nestimators));
 
-						auto _startcomm = chrono::high_resolution_clock::now();
-						for (int idx = 0; idx < blcoks_tasks_slave; ++idx) {
+						auto _startcomm = Clock::now();
+						for (int idx = 0; idx < (int)blcoks_tasks_slave; ++idx) {
 							MPI_Recv(bin2_bb_mids_v[idx].data(),
 									2 * bin_schemes_sum,
 									MPI_DOUBLE, process_idx, XnX_EXTRM_TAG,
@@ -1272,24 +1273,24 @@ void EntropyCalculator::run2d_xx_mpi(BATSet dim_type, const int rank,
 							dimentropy_v[idx].setId(0, 2, dim_ids);
 							dimentropy_v[idx].setDimContri(0, nestimators, 0,
 									nsteps, 0, n_schemes, entropy_bb_v[idx]);
-							LOG_DEBUG("Rank[%d]>> <= Rank[%d] received entropy contribution of [row-id=%d, col-id=%d] for %s",
+							LOG_DEBUG("Rank[%d]>> <= Rank[%ld] received entropy contribution of [row-id=%d, col-id=%d] for %s",
 									rank, process_idx, dim_ids[0], dim_ids[1], str_dim_type.c_str());
 						}
 						if (isWritefreq && (frqWriteset & dim_type)) {
 							if (ptr_hist_xx2d->writeRecords(bingrp_v) != 0) {
 								LOG_ERROR(
-										"Rank[%d]>> writing histogram of block_tasks=%d for %s from Rank[%d]",
-										rank, block_tasks, str_dim_type.c_str(),
+										"Rank[%d]>> writing histogram of block_tasks=%d for %s from Rank[%ld]",
+										rank, blcoks_tasks_slave, str_dim_type.c_str(),
 										process_idx);
 							}
 						}
 						ptr_ent_xx2d->writeRecords(dimentropy_v);
-						auto _endcomm = chrono::high_resolution_clock::now();
+						auto _endcomm = Clock::now();
 						auto _durcomm =
-								chrono::duration_cast<chrono::nanoseconds>(
+								chrono::duration_cast<ClockResolution>(
 										_startcomm - _endcomm).count();
-						ptaskset->curr_comm += chrono::nanoseconds(_durcomm);
-						progressstate.entc.curr_comm += chrono::nanoseconds(
+						ptaskset->curr_comm += ClockResolution(_durcomm);
+						progressstate.entc.curr_comm += ClockResolution(
 								_durcomm);
 					}
 
@@ -1301,23 +1302,23 @@ void EntropyCalculator::run2d_xx_mpi(BATSet dim_type, const int rank,
 
 				// Start writing entropy and frequency data for master_tasks
 				if (master_tasks > 0) {
-					auto _strtwrt = chrono::high_resolution_clock::now();
+					auto _strtwrt = Clock::now();
 					if (isWritefreq && (frqWriteset & BATSet::BB2D)) {
 						if (ptr_hist_xx2d->writeRecords(bingrp_v_master) != 0) {
 							LOG_ERROR(
 									"Rank[%d]>> writing histogram of block_tasks=%d for %s",
-									rank, block_tasks, str_dim_type.c_str());
+									rank, master_tasks, str_dim_type.c_str());
 						}
 					}
 					ptr_ent_xx2d->writeRecords(dimentropy_v_master);
 
-					auto _endwrt = chrono::high_resolution_clock::now();
-					auto _durwrt = chrono::duration_cast<chrono::nanoseconds>(
+					auto _endwrt = Clock::now();
+					auto _durwrt = chrono::duration_cast<ClockResolution>(
 							_endwrt - _strtwrt).count();
-					ptaskset->curr_write += chrono::nanoseconds(_durwrt);
-					progressstate.entc.curr_write += chrono::nanoseconds(
+					ptaskset->curr_write += ClockResolution(_durwrt);
+					progressstate.entc.curr_write += ClockResolution(
 							_durwrt);
-					ptaskset->current = chrono::high_resolution_clock::now();
+					ptaskset->current = Clock::now();
 					progressstate.entc.current = ptaskset->current;
 					ptaskset->done_tasks += master_tasks;
 					progressstate.entc.done_tasks += master_tasks;
@@ -1336,7 +1337,7 @@ void EntropyCalculator::run2d_xx_mpi(BATSet dim_type, const int rank,
 			}
 		} // dih-dih block calc for d1 ends
 
-		ptaskset->current = chrono::high_resolution_clock::now();
+		ptaskset->current = Clock::now();
 		ptaskset->cstt = ExecState::COMPLETED;
 		progressstate.entc.current = ptaskset->current;
 		int entc_workset_intval =
@@ -1422,17 +1423,17 @@ void EntropyCalculator::run2d_xx_mpi(BATSet dim_type, const int rank,
 		}
 
 		vector<ull_int> dim_lens(2, n_dim_eff);
-		ull_int nfrm_eff_entropy = 0;
+		//ull_int nfrm_eff_entropy = 0;
 		/*********************** MASTER PROCESS *******************
 		 * 2-D ENTROPY estimation for: BOND/ANGLE
 		 *********************************************************/
 		int chache_dims_per_proc = cache_entc_dims_per_cpu * n_thread_perproc
 				/ 2;
-		int n_cpus = numprocs * n_thread_perproc;
+		// int n_cpus = numprocs * n_thread_perproc;
 		int chached_dims = chache_dims_per_proc * numprocs;
 
-		int block_count = 0, block_tasks = 0;
-		bool block_ready = false;
+		// int block_tasks = 0; //, block_count = 0
+		// bool block_ready = false;
 
 		const u_int num_dimTypeKeys = dimTypeKeys.size();
 
@@ -1443,12 +1444,12 @@ void EntropyCalculator::run2d_xx_mpi(BATSet dim_type, const int rank,
 					(bi + chache_dims_per_proc <= num_dimTypeKeys) ?
 							chache_dims_per_proc : (num_dimTypeKeys - bi);
 
-			int row_cache_info[2];
-			row_cache_info[0] = bi;
-			row_cache_info[1] = bl_rows;
+			//int row_cache_info[2];
+			//row_cache_info[0] = bi;
+			//row_cache_info[1] = bl_rows;
 
 			LOG_DEBUG("Rank[%d]>> Bcast row-cache-info [bl_start=%d, bl_rows=%d] for %s",
-					rank, row_cache_info[0], row_cache_info[1], str_dim_type.c_str());
+					rank, bi, bl_rows, str_dim_type.c_str());
 
 			vector<vector<hbin_t>> dtyps1_int_v(bl_rows,
 					vector<hbin_t>(n_schemes * nframes_tot_eff));
@@ -1475,7 +1476,7 @@ void EntropyCalculator::run2d_xx_mpi(BATSet dim_type, const int rank,
 				vec_row_id2index[2 * idx] = dim_id;
 				vec_row_id2index[2 * idx + 1] = idx;
 
-				LOG_DEBUG("Rank[%d]>> Bcast %d ints of row id(%d) for %s",
+				LOG_DEBUG("Rank[%d]>> Bcast %lld ints of row id(%d) for %s",
 						rank, n_schemes * nframes_tot_eff, dim_id, str_dim_type.c_str());
 			}
 
@@ -1492,15 +1493,15 @@ void EntropyCalculator::run2d_xx_mpi(BATSet dim_type, const int rank,
 					max_slave_rank = ceil(
 							(double) bl_cols / (curr_col_cache_per_proc));
 				}
-				int col_cache_info[4];
-				col_cache_info[0] = bj;
-				col_cache_info[1] = bl_cols;
-				col_cache_info[2] = curr_col_cache_per_proc;
-				col_cache_info[3] = max_slave_rank;
+				//int col_cache_info[4];
+				//col_cache_info[0] = bj;
+				//col_cache_info[1] = bl_cols;
+				//col_cache_info[2] = curr_col_cache_per_proc;
+				//col_cache_info[3] = max_slave_rank;
 
 				MPI_Barrier(MPI_COMM_WORLD);
 				// Calc
-				u_int block_tasks = 0, col_idx = 0;
+				u_int block_tasks = 0; // col_idx = 0;
 				u_int slave_cols_block_tasks[2];
 				map<u_int, u_int> read_cols_dims;
 				map<pair<u_int, u_int>, u_int> id2index;
@@ -1528,11 +1529,11 @@ void EntropyCalculator::run2d_xx_mpi(BATSet dim_type, const int rank,
 						XnX_CMAP_TAG, MPI_COMM_WORLD,
 						MPI_STATUS_IGNORE);
 
-						for (int ia = 0; ia < 2 * n_cache_cols; ia += 2) {
+						for (auto ia = 0U; ia < 2 * n_cache_cols; ia += 2) {
 							read_cols_dims[vec_read_cols_dims[ia]] =
 									vec_read_cols_dims[ia + 1];
 						}
-						for (int ia = 0; ia < 3 * block_tasks; ia += 3) {
+						for (auto ia = 0U; ia < 3 * block_tasks; ia += 3) {
 							id2index[make_pair(vec_id2index[ia],
 									vec_id2index[ia + 1])] =
 									vec_id2index[ia + 2];
@@ -1546,7 +1547,7 @@ void EntropyCalculator::run2d_xx_mpi(BATSet dim_type, const int rank,
 								CoordBAT(0, n_schemes, nframes_tot_eff));
 
 						// read and cache cols
-						auto _startr2 = chrono::high_resolution_clock::now();
+						//auto _startr2 = Clock::now();
 						for (map<u_int, u_int>::iterator it =
 								read_cols_dims.begin();
 								it != read_cols_dims.end(); ++it) {
@@ -1559,7 +1560,7 @@ void EntropyCalculator::run2d_xx_mpi(BATSet dim_type, const int rank,
 									MPI_UNSIGNED_CHAR, MASTER_PROC,
 									XnX_INT_TAG, MPI_COMM_WORLD,
 									MPI_STATUS_IGNORE);
-							LOG_DEBUG("Rank[%d]>> <= Rank[%d] received %d ints of column-id(%d) for for %s",
+							LOG_DEBUG("Rank[%d]>> <= Rank[%d] received %lld ints of column-id(%d) for for %s",
 									rank, MASTER_PROC, n_schemes * nframes_tot_eff, it->first, str_dim_type.c_str());
 						}
 
@@ -1580,11 +1581,11 @@ void EntropyCalculator::run2d_xx_mpi(BATSet dim_type, const int rank,
 								DimEntropy(dummy_ids, (hbin_t) nsteps,
 										n_schemes, nestimators));
 
-						auto _endcomm1 = chrono::high_resolution_clock::now();
+						//auto _endcomm1 = Clock::now();
 						vector<double> bb_extrm(8 * block_tasks, 0.0);
 
 #pragma omp parallel for
-						for (int idx = 0; idx < block_tasks; ++idx) {
+						for (int idx = 0; idx < (int)block_tasks; ++idx) {
 							auto rid = vec_id2index[3 * idx];
 							auto cid = vec_id2index[3 * idx + 1];
 							auto rno = row_id2index[rid];
@@ -1603,7 +1604,7 @@ void EntropyCalculator::run2d_xx_mpi(BATSet dim_type, const int rank,
 									freq2_bb_obs_v[idx], bin2_bb_mids_v[idx])
 									!= 0) {
 								LOG_ERROR(
-										"Rank[%d]>> binning data %s id(%d, %d)",
+										"Rank[%d]>> binning data %s id(%d, %d)", rank,
 										str_dim_type.c_str(), rid, cid);
 							}
 							entropy2D(dtype1st, dtype1st, rid, cid,
@@ -1649,7 +1650,7 @@ void EntropyCalculator::run2d_xx_mpi(BATSet dim_type, const int rank,
 						LOG_DEBUG("Rank[%d]>> => Rank[%d] sent block_task=%d row/col index-id extremas=%d vectors for %s",
 								rank, MASTER_PROC, block_tasks, 8*block_tasks, str_dim_type.c_str());
 
-						for (int idx = 0; idx < block_tasks; ++idx) {
+						for (int idx = 0; idx < (int)block_tasks; ++idx) {
 							MPI_Send(bin2_bb_mids_v[idx].data(),
 									2 * bin_schemes_sum,
 									MPI_DOUBLE, MASTER_PROC,
@@ -1809,7 +1810,7 @@ void EntropyCalculator::run2d_xy_mpi(BATSet dim_type, const int rank,
 
 		ent_xy2d->NC_create(str_dim_type + "-2D Entropy contributions");
 
-		ptaskset->start = chrono::high_resolution_clock::now();
+		ptaskset->start = Clock::now();
 		ptaskset->current = ptaskset->start;
 		ptaskset->strt_read = ptaskset->curr_read = ptaskset->start;
 		ptaskset->strt_comp = ptaskset->curr_comp = ptaskset->start;
@@ -1829,14 +1830,14 @@ void EntropyCalculator::run2d_xy_mpi(BATSet dim_type, const int rank,
 		 *********************************************************/
 
 		vector<u_int> block_boundry(5);
-		int block_count = 0, block_tasks = 0;
-		bool block_ready = false;
+		int block_tasks = 0; // block_count = 0;
+		//bool block_ready = false;
 
 		const u_int num_dim_neigh_keys = dim_neigh_keys.size();
 
 		int chache_dims_per_proc = cache_entc_dims_per_cpu * n_thread_perproc
 				/ 2;
-		int n_cpus = numprocs * n_thread_perproc;
+		//int n_cpus = numprocs * n_thread_perproc;
 		int chached_dims = chache_dims_per_proc * numprocs;
 
 		fflush(stdout);
@@ -1855,22 +1856,22 @@ void EntropyCalculator::run2d_xy_mpi(BATSet dim_type, const int rank,
 					(bi + chache_dims_per_proc <= num_dim_neigh_keys) ?
 							chache_dims_per_proc : (num_dim_neigh_keys - bi);
 
-			int row_cache_info[2];
-			row_cache_info[0] = bi;
-			row_cache_info[1] = bl_rows;
+			//int row_cache_info[2];
+			//row_cache_info[0] = bi;
+			//row_cache_info[1] = bl_rows;
 
 			LOG_DEBUG("Rank[%d]>> row-cache-info [bl_start=%d, bl_rows=%d] for %s",
-					rank, row_cache_info[0], row_cache_info[1], str_dim_type.c_str());
+					rank, bi, bl_rows, str_dim_type.c_str());
 
 			vector<hbin_t*> dtyps1_int_v(bl_rows);
 			vector<vector<double>> dtyps1_extrm_v(bl_rows,
 					vector<double>(4, 0.0));
 			vector<CoordBAT> crd_rows(bl_rows,
 					CoordBAT(0, n_schemes, nframes_tot_eff));
-			std: map<u_int, u_int> row_id2index;
+      map<u_int, u_int> row_id2index;
 			vector<u_int> vec_row_id2index(2 * bl_rows);
 			// Fill Cache with rows
-			auto _startr = chrono::high_resolution_clock::now();
+			auto _startr = Clock::now();
 			for (auto rno = 0; rno < bl_rows; ++rno) {
 				const u_int dtyp_id1 = dim_neigh_keys[bi + rno];
 				row_id2index[dtyp_id1] = rno;
@@ -1887,11 +1888,11 @@ void EntropyCalculator::run2d_xy_mpi(BATSet dim_type, const int rank,
 						&dtyps1_extrm_v[rno][3], &n_schemes, &nfrm_eff_entropy,
 						&dtyps1_int_v[rno]);
 			}
-			auto _endr = chrono::high_resolution_clock::now();
-			auto _dur_rd = chrono::duration_cast<chrono::nanoseconds>(
+			auto _endr = Clock::now();
+			auto _dur_rd = chrono::duration_cast<ClockResolution>(
 					_endr - _startr).count();
-			ptaskset->curr_read += chrono::nanoseconds(_dur_rd);
-			progressstate.entc.curr_read += chrono::nanoseconds(_dur_rd);
+			ptaskset->curr_read += ClockResolution(_dur_rd);
+			progressstate.entc.curr_read += ClockResolution(_dur_rd);
 
 			fflush(stdout);
 
@@ -1899,19 +1900,19 @@ void EntropyCalculator::run2d_xy_mpi(BATSet dim_type, const int rank,
 			 * Send data for bin frequency calculation and entropy estimation to the slave process
 			 */
 			for (int idx = 0; idx < bl_rows; ++idx) {
-				const u_int dim_id = dim_neigh_keys[bi + idx];
+				//const u_int dim_id = dim_neigh_keys[bi + idx];
 				MPI_Bcast(dtyps1_extrm_v[idx].data(), 4, MPI_DOUBLE,
 				MASTER_PROC, MPI_COMM_WORLD);
 				MPI_Bcast(dtyps1_int_v[idx], n_schemes * nframes_tot_eff,
 				MPI_UNSIGNED_CHAR, MASTER_PROC, MPI_COMM_WORLD);
 
-				LOG_DEBUG("Rank[%d]>> Bcast %d ints of row id(%d) for %s", rank, n_schemes * nframes_tot_eff, dim_id, str_dim_type.c_str());
+				LOG_DEBUG("Rank[%d]>> Bcast %lld ints of row id(%d) for %s", rank, n_schemes * nframes_tot_eff, dim_neigh_keys[bi + idx], str_dim_type.c_str());
 			}
-			auto _endcomm1 = chrono::high_resolution_clock::now();
-			auto _durcomm1 = chrono::duration_cast<chrono::nanoseconds>(
+			auto _endcomm1 = Clock::now();
+			auto _durcomm1 = chrono::duration_cast<ClockResolution>(
 					_endcomm1 - _endr).count();
-			ptaskset->curr_comm += chrono::nanoseconds(_durcomm1);
-			progressstate.entc.curr_comm += chrono::nanoseconds(_durcomm1);
+			ptaskset->curr_comm += ClockResolution(_durcomm1);
+			progressstate.entc.curr_comm += ClockResolution(_durcomm1);
 			fflush(stdout);
 			MPI_Barrier(MPI_COMM_WORLD);
 			for (u_int bj = 0; bj < dim_lens[1]; bj += chached_dims) {
@@ -1926,11 +1927,11 @@ void EntropyCalculator::run2d_xy_mpi(BATSet dim_type, const int rank,
 					max_slave_rank = ceil(
 							(double) bl_cols / (curr_col_cache_per_proc));
 				}
-				int col_cache_info[4];
-				col_cache_info[0] = bj;
-				col_cache_info[1] = bl_cols;
-				col_cache_info[2] = curr_col_cache_per_proc;
-				col_cache_info[3] = max_slave_rank;
+				//int col_cache_info[4];
+				//col_cache_info[0] = bj;
+				//col_cache_info[1] = bl_cols;
+				//col_cache_info[2] = curr_col_cache_per_proc;
+				//col_cache_info[3] = max_slave_rank;
 
 				MPI_Barrier(MPI_COMM_WORLD);
 
@@ -2007,7 +2008,7 @@ void EntropyCalculator::run2d_xy_mpi(BATSet dim_type, const int rank,
 								CoordBAT(0, n_schemes, nframes_tot_eff));
 
 						// read and cache cols
-						auto _startr2 = chrono::high_resolution_clock::now();
+						auto _startr2 = Clock::now();
 						for (map<u_int, u_int>::iterator it =
 								read_cols_dims.begin();
 								it != read_cols_dims.end(); ++it) {
@@ -2016,7 +2017,7 @@ void EntropyCalculator::run2d_xy_mpi(BATSet dim_type, const int rank,
 							if (intyofXY2DTraj->readCoords(it->first, 0,
 									n_schemes, crd_cols[it->second]) != 0) {
 								LOG_ERROR(
-										"Rank[%d]>> reading %d ints of column id(%d) for %s",
+										"Rank[%d]>> reading %lld ints of column id(%d) for %s",
 										rank, n_schemes * nframes_tot_eff,
 										it->first, str_dim_type.c_str());
 							}
@@ -2028,11 +2029,11 @@ void EntropyCalculator::run2d_xy_mpi(BATSet dim_type, const int rank,
 									&nfrm_eff_entropy,
 									&dtyps2_int_v[it->second]);
 						}
-						auto _endr2 = chrono::high_resolution_clock::now();
+						auto _endr2 = Clock::now();
 						auto _dur2_rd = chrono::duration_cast<
-								chrono::nanoseconds>(_endr2 - _startr2).count();
-						ptaskset->curr_read += chrono::nanoseconds(_dur2_rd);
-						progressstate.entc.curr_read += chrono::nanoseconds(
+								ClockResolution>(_endr2 - _startr2).count();
+						ptaskset->curr_read += ClockResolution(_dur2_rd);
+						progressstate.entc.curr_read += ClockResolution(
 								_dur2_rd);
 
 						for (map<u_int, u_int>::iterator it =
@@ -2046,22 +2047,22 @@ void EntropyCalculator::run2d_xy_mpi(BATSet dim_type, const int rank,
 									n_schemes * nframes_tot_eff,
 									MPI_UNSIGNED_CHAR, process_idx,
 									XnY_INT_TAG, MPI_COMM_WORLD);
-							LOG_DEBUG("Rank[%d]>> => Rank[%d] sent %d ints of column-id(%d) for for %s",
+							LOG_DEBUG("Rank[%d]>> => Rank[%d] sent %lld ints of column-id(%d) for for %s",
 									rank, process_idx, n_schemes * nframes_tot_eff, it->first, str_dim_type.c_str());
 						}
 
-						auto _endcomm1 = chrono::high_resolution_clock::now();
+						auto _endcomm1 = Clock::now();
 						auto _durcomm1 = chrono::duration_cast<
-								chrono::nanoseconds>(_endcomm1 - _endr).count();
-						ptaskset->curr_comm += chrono::nanoseconds(_durcomm1);
-						progressstate.entc.curr_comm += chrono::nanoseconds(
+								ClockResolution>(_endcomm1 - _endr).count();
+						ptaskset->curr_comm += ClockResolution(_durcomm1);
+						progressstate.entc.curr_comm += ClockResolution(
 								_durcomm1);
 					}
 				}
 
 				LOG_DEBUG("Rank[%d]>> scattering columns ints to slaves completed", rank);
 
-				int n_cols4master = bl_cols - n_cols_sent2slaves;
+				//int n_cols4master = bl_cols - n_cols_sent2slaves;
 
 				u_int master_tasks = 0, mastercol_idx = 0;
 				map<u_int, u_int> masterread_cols_dims;
@@ -2089,9 +2090,9 @@ void EntropyCalculator::run2d_xy_mpi(BATSet dim_type, const int rank,
 					}
 				}
 
-				u_int n_mastercache_cols = masterread_cols_dims.size();
+				//u_int n_mastercache_cols = masterread_cols_dims.size();
 				LOG_DEBUG("Rank[%d]>> data for %s [block_tasks=%d, read_cols_dims=%d]",
-						rank, str_dim_type.c_str(), master_tasks, n_mastercache_cols);
+						rank, str_dim_type.c_str(), master_tasks, masterread_cols_dims.size());
 
 				vector<hbin_t*> dtyps2_int_v_master;
 				vector<vector<double>> dtyps2_extrm_v_master;
@@ -2120,7 +2121,7 @@ void EntropyCalculator::run2d_xy_mpi(BATSet dim_type, const int rank,
 						vec_masterid2index[ii + 2] = it->second;
 						ii += 3;
 					}
-					for (int it4master = 0; it4master < master_tasks;
+					for (int it4master = 0; it4master < (int)master_tasks;
 							++it4master) {
 						hbin_t *hbptr;
 						dtyps2_int_v_master.push_back(hbptr);
@@ -2145,7 +2146,7 @@ void EntropyCalculator::run2d_xy_mpi(BATSet dim_type, const int rank,
 					}
 
 					// read and cache cols
-					auto _startr2 = chrono::high_resolution_clock::now();
+					auto _startr2 = Clock::now();
 					for (map<u_int, u_int>::iterator it =
 							masterread_cols_dims.begin();
 							it != masterread_cols_dims.end(); ++it) {
@@ -2153,7 +2154,7 @@ void EntropyCalculator::run2d_xy_mpi(BATSet dim_type, const int rank,
 						if (intyofXY2DTraj->readCoords(it->first, 0, n_schemes,
 								crd_cols_master[it->second]) != 0) {
 							LOG_ERROR(
-									"Rank[%d]>> reading %d ints of column id(%d) for %s",
+									"Rank[%d]>> reading %lld ints of column id(%d) for %s",
 									rank, n_schemes * nframes_tot_eff,
 									it->first, str_dim_type.c_str());
 
@@ -2167,18 +2168,18 @@ void EntropyCalculator::run2d_xy_mpi(BATSet dim_type, const int rank,
 								&dtyps2_int_v_master[it->second]);
 					} LOG_DEBUG("Rank[%d]>> Reading columns for master's tasks completed for %s", rank, str_dim_type.c_str());
 
-					auto _endr2 = chrono::high_resolution_clock::now();
-					auto _dur2_rd = chrono::duration_cast<chrono::nanoseconds>(
+					auto _endr2 = Clock::now();
+					auto _dur2_rd = chrono::duration_cast<ClockResolution>(
 							_endr2 - _startr2).count();
-					ptaskset->curr_read += chrono::nanoseconds(_dur2_rd);
-					progressstate.entc.curr_read += chrono::nanoseconds(
+					ptaskset->curr_read += ClockResolution(_dur2_rd);
+					progressstate.entc.curr_read += ClockResolution(
 							_dur2_rd);
 					//
 
-					auto _endcomm1 = chrono::high_resolution_clock::now();
+					auto _endcomm1 = Clock::now();
 
 #pragma omp parallel for
-					for (int idx = 0; idx < master_tasks; ++idx) {
+					for (int idx = 0; idx < (int)master_tasks; ++idx) {
 						auto rid = vec_masterid2index[3 * idx];
 						auto cid = vec_masterid2index[3 * idx + 1];
 						auto rno = row_id2index[rid];
@@ -2194,7 +2195,7 @@ void EntropyCalculator::run2d_xy_mpi(BATSet dim_type, const int rank,
 								dtyps1_int_v[rno], dtyps2_int_v_master[cno],
 								freq2_xy_obs_v_master[idx],
 								bin2_xy_mids_v_master[idx]) != 0) {
-							LOG_ERROR("Rank[%d]>> binning data %s id(%d, %d)",
+							LOG_ERROR("Rank[%d]>> binning data %s id(%d, %d)", rank,
 									str_dim_type.c_str(), rid, cid);
 						}
 						entropy2D(dtype1st, dtype2nd, rid, cid,
@@ -2231,18 +2232,18 @@ void EntropyCalculator::run2d_xy_mpi(BATSet dim_type, const int rank,
 								nsteps, 0, n_schemes, entropy_xy_v_master[idx]);
 
 					}
-					auto _endcomp = chrono::high_resolution_clock::now();
-					auto _durcomp = chrono::duration_cast<chrono::nanoseconds>(
+					auto _endcomp = Clock::now();
+					auto _durcomp = chrono::duration_cast<ClockResolution>(
 							_endcomp - _endcomm1).count();
-					ptaskset->curr_comp += chrono::nanoseconds(_durcomp);
-					progressstate.entc.curr_comp += chrono::nanoseconds(
+					ptaskset->curr_comp += ClockResolution(_durcomp);
+					progressstate.entc.curr_comp += ClockResolution(
 							_durcomp);
 
 				} LOG_DEBUG("Rank[%d]>> Computing entropy for master completed..", rank);
 				// start of receiving entropy and frequency data from slaves and writing to files
 				int n_gather_curr_block = 0;
-				int n_prepared2write_curr_block = 0;
-				for (size_t process_idx = 1; process_idx < max_slave_rank;
+				//int n_prepared2write_curr_block = 0;
+				for (size_t process_idx = 1; process_idx < (size_t)max_slave_rank;
 						++process_idx) {
 					u_int blcoks_tasks_slave = 0;
 					u_int slave_cols_block_tasks[2];
@@ -2251,7 +2252,7 @@ void EntropyCalculator::run2d_xy_mpi(BATSet dim_type, const int rank,
 							XnY_CBLK_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 					blcoks_tasks_slave = slave_cols_block_tasks[0];
 
-					LOG_DEBUG("Rank[%d]>> <= Rank[%d] received for %s [block_tasks=%d, read_cols_dims=%d]",
+					LOG_DEBUG("Rank[%d]>> <= Rank[%ld] received for %s [block_tasks=%d, read_cols_dims=%d]",
 							rank, process_idx, str_dim_type.c_str(), slave_cols_block_tasks[0],
 							slave_cols_block_tasks[1]);
 					if (blcoks_tasks_slave > 0) {
@@ -2272,14 +2273,14 @@ void EntropyCalculator::run2d_xy_mpi(BATSet dim_type, const int rank,
 						MPI_UNSIGNED, process_idx, XnY_CMAP_TAG,
 						MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
-						LOG_DEBUG("Rrank[%d]>> <= Rank[%d] received block_task=%d row/col index-id vectors for %s",
+						LOG_DEBUG("Rrank[%d]>> <= Rank[%ld] received block_task=%d row/col index-id vectors for %s",
 								rank, process_idx, blcoks_tasks_slave, str_dim_type.c_str());
 						MPI_Recv(dd_extrema_block.data(),
 								8 * blcoks_tasks_slave,
 								MPI_DOUBLE, process_idx, XnY_EXTRM_TAG,
 								MPI_COMM_WORLD,
 								MPI_STATUS_IGNORE);
-						LOG_DEBUG("Rank[%d]>> <= Rank[%d] received block_task=%d row/col index-id extremas=%d vectors for %s",
+						LOG_DEBUG("Rank[%d]>> <= Rank[%ld] received block_task=%d row/col index-id extremas=%d vectors for %s",
 								rank, process_idx, blcoks_tasks_slave, 8*blcoks_tasks_slave, str_dim_type.c_str());
 
 						vector<vector<ull_int>> freq2_bb_obs_v(
@@ -2303,8 +2304,8 @@ void EntropyCalculator::run2d_xy_mpi(BATSet dim_type, const int rank,
 								DimEntropy(dummy_ids_master, (hbin_t) nsteps,
 										n_schemes, nestimators));
 
-						auto _startcomm = chrono::high_resolution_clock::now();
-						for (int idx = 0; idx < blcoks_tasks_slave; ++idx) {
+						auto _startcomm = Clock::now();
+						for (int idx = 0; idx < (int)blcoks_tasks_slave; ++idx) {
 							MPI_Recv(bin2_bb_mids_v[idx].data(),
 									2 * bin_schemes_sum,
 									MPI_DOUBLE, process_idx, XnY_EXTRM_TAG,
@@ -2347,24 +2348,24 @@ void EntropyCalculator::run2d_xy_mpi(BATSet dim_type, const int rank,
 							dimentropy_v[idx].setDimContri(0, nestimators, 0,
 									nsteps, 0, n_schemes, entropy_bb_v[idx]);
 
-							LOG_DEBUG("Rank[%d]>> <= Rank[%d] received entropy contribution of [row-id=%d, col-id=%d] for %s",
+							LOG_DEBUG("Rank[%d]>> <= Rank[%lu] received entropy contribution of [row-id=%d, col-id=%d] for %s",
 									rank, process_idx, dim_ids[0], dim_ids[1], str_dim_type.c_str());
 						}
 						if (isWritefreq && (frqWriteset & dim_type)) {
 							if (xy2DHist->writeRecords(bingrp_v) != 0) {
 								LOG_ERROR(
-										"Rank[%d]>> writing histogram of block_tasks=%d for %s from Rank[%d]",
+										"Rank[%d]>> writing histogram of block_tasks=%d for %s from Rank[%ld]",
 										rank, block_tasks, str_dim_type.c_str(),
 										process_idx);
 							}
 						}
 						ent_xy2d->writeRecords(dimentropy_v);
-						auto _endcomm = chrono::high_resolution_clock::now();
+						auto _endcomm = Clock::now();
 						auto _durcomm =
-								chrono::duration_cast<chrono::nanoseconds>(
+								chrono::duration_cast<ClockResolution>(
 										_startcomm - _endcomm).count();
-						ptaskset->curr_comm += chrono::nanoseconds(_durcomm);
-						progressstate.entc.curr_comm += chrono::nanoseconds(
+						ptaskset->curr_comm += ClockResolution(_durcomm);
+						progressstate.entc.curr_comm += ClockResolution(
 								_durcomm);
 					}
 
@@ -2376,7 +2377,7 @@ void EntropyCalculator::run2d_xy_mpi(BATSet dim_type, const int rank,
 
 				// Start writing entropy and frequency data for master_tasks
 				if (master_tasks > 0) {
-					auto _strtwrt = chrono::high_resolution_clock::now();
+					auto _strtwrt = Clock::now();
 					if (isWritefreq && (frqWriteset & BATSet::BB2D)) {
 						if (xy2DHist->writeRecords(bingrp_v_master) != 0) {
 							LOG_ERROR(
@@ -2386,13 +2387,13 @@ void EntropyCalculator::run2d_xy_mpi(BATSet dim_type, const int rank,
 					}
 					ent_xy2d->writeRecords(dimentropy_v_master);
 
-					auto _endwrt = chrono::high_resolution_clock::now();
-					auto _durwrt = chrono::duration_cast<chrono::nanoseconds>(
+					auto _endwrt = Clock::now();
+					auto _durwrt = chrono::duration_cast<ClockResolution>(
 							_endwrt - _strtwrt).count();
-					ptaskset->curr_write += chrono::nanoseconds(_durwrt);
-					progressstate.entc.curr_write += chrono::nanoseconds(
+					ptaskset->curr_write += ClockResolution(_durwrt);
+					progressstate.entc.curr_write += ClockResolution(
 							_durwrt);
-					ptaskset->current = chrono::high_resolution_clock::now();
+					ptaskset->current = Clock::now();
 					progressstate.entc.current = ptaskset->current;
 					ptaskset->done_tasks += master_tasks;
 					progressstate.entc.done_tasks += master_tasks;
@@ -2411,7 +2412,7 @@ void EntropyCalculator::run2d_xy_mpi(BATSet dim_type, const int rank,
 			}
 		} // dih-dih block calc for d1 ends
 
-		ptaskset->current = chrono::high_resolution_clock::now();
+		ptaskset->current = Clock::now();
 		ptaskset->cstt = ExecState::COMPLETED;
 		progressstate.entc.current = ptaskset->current;
 		int entc_workset_intval =
@@ -2442,19 +2443,19 @@ void EntropyCalculator::run2d_xy_mpi(BATSet dim_type, const int rank,
 				str_dim_type.c_str(), time_xy.total());
 
 	} else if (rank != MASTER_PROC) {
-		ProgTaskSet *ptaskset;
+		//ProgTaskSet *ptaskset;
 		string str_dim_type;
 		u_int n_dim_x_eff = 0;
 		u_int n_dim_y_eff = 0;
 		u_int num_xy2d;
-		Netcdf_TrjInt *intxofXY2DTraj;
-		Netcdf_TrjInt *intyofXY2DTraj;
-		string intxofXY2DTrajFileName;
-		string intyofXY2DTrajFileName;
-		Netcdf_HistUtil *xy2DHist;
-		string xy2DHistFileName;
-		Netcdf_EntContri *ent_xy2d;
-		string ent_xy2dFileName;
+		//Netcdf_TrjInt *intxofXY2DTraj;
+		//Netcdf_TrjInt *intyofXY2DTraj;
+		//string intxofXY2DTrajFileName;
+		//string intyofXY2DTrajFileName;
+		//Netcdf_HistUtil *xy2DHist;
+		//string xy2DHistFileName;
+		//Netcdf_EntContri *ent_xy2d;
+		//string ent_xy2dFileName;
 
 		vector<u_int> dim_neigh_keys;
 		vector<u_int> dimtypes_v;
@@ -2464,15 +2465,15 @@ void EntropyCalculator::run2d_xy_mpi(BATSet dim_type, const int rank,
 		case BATSet::BA2D:
 			dtype1st = BAT_t::BOND;
 			dtype2nd = BAT_t::ANGLE;
-			ptaskset = &(progressstate.entc_ba2d);
+			//ptaskset = &(progressstate.entc_ba2d);
 			str_dim_type.assign("B/A");
 			n_dim_x_eff = n_bnd_eff;
 			n_dim_y_eff = n_ang_eff;
 
-			intxofXY2DTrajFileName.assign("bin_bonds.nc");
-			intyofXY2DTrajFileName.assign("bin_angles.nc");
-			xy2DHistFileName.assign("hist_ba-2d.nc");
-			ent_xy2dFileName.assign("entcontri_ba-2d.nc");
+			//intxofXY2DTrajFileName.assign("bin_bonds.nc");
+			//intyofXY2DTrajFileName.assign("bin_angles.nc");
+			//xy2DHistFileName.assign("hist_ba-2d.nc");
+			//ent_xy2dFileName.assign("entcontri_ba-2d.nc");
 
 			inputs.getNeighbors().bacrossKeys(dim_neigh_keys);
 			for (size_t d1 = 0; d1 < dim_neigh_keys.size(); ++d1) {
@@ -2487,15 +2488,15 @@ void EntropyCalculator::run2d_xy_mpi(BATSet dim_type, const int rank,
 		case BATSet::BD2D:
 			dtype1st = BAT_t::BOND;
 			dtype2nd = BAT_t::DIHEDRAL;
-			ptaskset = &(progressstate.entc_bd2d);
+			//ptaskset = &(progressstate.entc_bd2d);
 			str_dim_type.assign("B/D");
 			n_dim_x_eff = n_bnd_eff;
 			n_dim_y_eff = n_dih_eff;
 
-			intxofXY2DTrajFileName.assign("bin_bonds.nc");
-			intyofXY2DTrajFileName.assign("bin_torsions.nc");
-			xy2DHistFileName.assign("hist_bd-2d.nc");
-			ent_xy2dFileName.assign("entcontri_bd-2d.nc");
+			//intxofXY2DTrajFileName.assign("bin_bonds.nc");
+			//intyofXY2DTrajFileName.assign("bin_torsions.nc");
+			//xy2DHistFileName.assign("hist_bd-2d.nc");
+			//ent_xy2dFileName.assign("entcontri_bd-2d.nc");
 
 			inputs.getNeighbors().bdcrossKeys(dim_neigh_keys);
 			for (size_t d1 = 0; d1 < dim_neigh_keys.size(); ++d1) {
@@ -2510,15 +2511,15 @@ void EntropyCalculator::run2d_xy_mpi(BATSet dim_type, const int rank,
 		case BATSet::AD2D:
 			dtype1st = BAT_t::ANGLE;
 			dtype2nd = BAT_t::DIHEDRAL;
-			ptaskset = &(progressstate.entc_ad2d);
+			//ptaskset = &(progressstate.entc_ad2d);
 			str_dim_type.assign("A/D");
 			n_dim_x_eff = n_ang_eff;
 			n_dim_y_eff = n_dih_eff;
 
-			intxofXY2DTrajFileName.assign("bin_angles.nc");
-			intyofXY2DTrajFileName.assign("bin_torsions.nc");
-			xy2DHistFileName.assign("hist_ad-2d.nc");
-			ent_xy2dFileName.assign("entcontri_ad-2d.nc");
+			//intxofXY2DTrajFileName.assign("bin_angles.nc");
+			//intyofXY2DTrajFileName.assign("bin_torsions.nc");
+			//xy2DHistFileName.assign("hist_ad-2d.nc");
+			//ent_xy2dFileName.assign("entcontri_ad-2d.nc");
 
 			inputs.getNeighbors().adcrossKeys(dim_neigh_keys);
 			for (size_t d1 = 0; d1 < dim_neigh_keys.size(); ++d1) {
@@ -2537,17 +2538,17 @@ void EntropyCalculator::run2d_xy_mpi(BATSet dim_type, const int rank,
 		vector<ull_int> dim_lens(2, 0);
 		dim_lens[0] = n_dim_x_eff;
 		dim_lens[1] = n_dim_y_eff;
-		ull_int nfrm_eff_entropy = 0;
-		/*********************** MASTER PROCESS *******************
-		 * 2-D ENTROPY estimation for: BOND/ANGLE
+		//ull_int nfrm_eff_entropy = 0;
+		/*********************** WORKER PROCESS *******************
+		 * 2-D ENTROPY estimation fori type X-Y e.g. BOND/ANGLE
 		 *********************************************************/
 		int chache_dims_per_proc = cache_entc_dims_per_cpu * n_thread_perproc
 				/ 2;
-		int n_cpus = numprocs * n_thread_perproc;
+		//int n_cpus = numprocs * n_thread_perproc;
 		int chached_dims = chache_dims_per_proc * numprocs;
 
-		int block_count = 0, block_tasks = 0;
-		bool block_ready = false;
+		//int block_count = 0, block_tasks = 0;
+		//bool block_ready = false;
 
 		const u_int n_dim_neigh_keys = dim_neigh_keys.size();
 
@@ -2561,12 +2562,12 @@ void EntropyCalculator::run2d_xy_mpi(BATSet dim_type, const int rank,
 					(bi + chache_dims_per_proc <= n_dim_neigh_keys) ?
 							chache_dims_per_proc : (n_dim_neigh_keys - bi);
 
-			int row_cache_info[2];
-			row_cache_info[0] = bi;
-			row_cache_info[1] = bl_rows;
+			//int row_cache_info[2];
+			// row_cache_info[0] = bi;
+			// row_cache_info[1] = bl_rows;
 
 			LOG_DEBUG("Rank[%d]>> row-cache-info [bl_start=%d, bl_rows=%d] for %s",
-					rank, row_cache_info[0], row_cache_info[1], str_dim_type.c_str());
+					rank, bi, bl_rows, str_dim_type.c_str());
 
 			vector<vector<hbin_t>> dtyps1_int_v(bl_rows,
 					vector<hbin_t>(n_schemes * nframes_tot_eff));
@@ -2595,7 +2596,7 @@ void EntropyCalculator::run2d_xy_mpi(BATSet dim_type, const int rank,
 				vec_row_id2index[2 * idx] = dim_id;
 				vec_row_id2index[2 * idx + 1] = idx;
 
-				LOG_DEBUG("Rank[%d]>> Bcast %d ints of row id(%d) for %s",
+				LOG_DEBUG("Rank[%d]>> Bcast %lld ints of row id(%d) for %s",
 						rank, n_schemes * nframes_tot_eff, dim_id, str_dim_type.c_str());
 			}
 
@@ -2612,15 +2613,15 @@ void EntropyCalculator::run2d_xy_mpi(BATSet dim_type, const int rank,
 					max_slave_rank = ceil(
 							(double) bl_cols / (curr_col_cache_per_proc));
 				}
-				int col_cache_info[4];
-				col_cache_info[0] = bj;
-				col_cache_info[1] = bl_cols;
-				col_cache_info[2] = curr_col_cache_per_proc;
-				col_cache_info[3] = max_slave_rank;
+				//int col_cache_info[4];
+				//col_cache_info[0] = bj;
+				//col_cache_info[1] = bl_cols;
+				//col_cache_info[2] = curr_col_cache_per_proc;
+				//col_cache_info[3] = max_slave_rank;
 
 				MPI_Barrier(MPI_COMM_WORLD);
 				// Calc
-				u_int block_tasks = 0, col_idx = 0;
+				u_int block_tasks = 0;// col_idx = 0;
 				u_int slave_cols_block_tasks[2];
 				map<u_int, u_int> read_cols_dims;
 				map<pair<u_int, u_int>, u_int> id2index;
@@ -2648,11 +2649,11 @@ void EntropyCalculator::run2d_xy_mpi(BATSet dim_type, const int rank,
 						XnY_CMAP_TAG, MPI_COMM_WORLD,
 						MPI_STATUS_IGNORE);
 
-						for (int ia = 0; ia < 2 * n_cache_cols; ia += 2) {
+						for (auto ia = 0U; ia < 2 * n_cache_cols; ia += 2) {
 							read_cols_dims[vec_read_cols_dims[ia]] =
 									vec_read_cols_dims[ia + 1];
 						}
-						for (int ia = 0; ia < 3 * block_tasks; ia += 3) {
+						for (auto ia = 0U; ia < 3 * block_tasks; ia += 3) {
 							id2index[make_pair(vec_id2index[ia],
 									vec_id2index[ia + 1])] =
 									vec_id2index[ia + 2];
@@ -2666,7 +2667,7 @@ void EntropyCalculator::run2d_xy_mpi(BATSet dim_type, const int rank,
 								CoordBAT(0, n_schemes, nframes_tot_eff));
 
 						// read and cache cols
-						auto _startr2 = chrono::high_resolution_clock::now();
+						//auto _startr2 = Clock::now();
 						for (map<u_int, u_int>::iterator it =
 								read_cols_dims.begin();
 								it != read_cols_dims.end(); ++it) {
@@ -2679,7 +2680,7 @@ void EntropyCalculator::run2d_xy_mpi(BATSet dim_type, const int rank,
 									MPI_UNSIGNED_CHAR, MASTER_PROC,
 									XnY_INT_TAG, MPI_COMM_WORLD,
 									MPI_STATUS_IGNORE);
-							LOG_DEBUG("Rank[%d]>> <= Rank[%d] received %d ints of column-id(%d) for for %s",
+							LOG_DEBUG("Rank[%d]>> <= Rank[%d] received %lld ints of column-id(%d) for for %s",
 									rank, MASTER_PROC, n_schemes * nframes_tot_eff, it->first, str_dim_type.c_str());
 						}
 
@@ -2700,11 +2701,11 @@ void EntropyCalculator::run2d_xy_mpi(BATSet dim_type, const int rank,
 								DimEntropy(dummy_ids, (hbin_t) nsteps,
 										n_schemes, nestimators));
 
-						auto _endcomm1 = chrono::high_resolution_clock::now();
+						//auto _endcomm1 = Clock::now();
 						vector<double> bb_extrm(8 * block_tasks, 0.0);
 
 #pragma omp parallel for
-						for (int idx = 0; idx < block_tasks; ++idx) {
+						for (int idx = 0; idx < (int)block_tasks; ++idx) {
 							auto rid = vec_id2index[3 * idx];
 							auto cid = vec_id2index[3 * idx + 1];
 							auto rno = row_id2index[rid];
@@ -2723,7 +2724,7 @@ void EntropyCalculator::run2d_xy_mpi(BATSet dim_type, const int rank,
 									freq2_bb_obs_v[idx], bin2_bb_mids_v[idx])
 									!= 0) {
 								LOG_ERROR(
-										"Rank[%d]>> binning data %s id(%d, %d)",
+										"Rank[%d]>> binning data %s id(%d, %d)", rank,
 										str_dim_type.c_str(), rid, cid);
 							}
 							entropy2D(dtype1st, dtype2nd, rid, cid,
@@ -2770,7 +2771,7 @@ void EntropyCalculator::run2d_xy_mpi(BATSet dim_type, const int rank,
 						LOG_DEBUG("Rank[%d]>> => Rank[%d] sent block_task=%d row/col index-id extremas=%d vectors for %s",
 								rank, MASTER_PROC, block_tasks, 8*block_tasks, str_dim_type.c_str());
 
-						for (int idx = 0; idx < block_tasks; ++idx) {
+						for (int idx = 0; idx < (int)block_tasks; ++idx) {
 							MPI_Send(bin2_bb_mids_v[idx].data(),
 									2 * bin_schemes_sum,
 									MPI_DOUBLE, MASTER_PROC,
@@ -2925,7 +2926,7 @@ void EntropyCalculator::run2d_xy(BATSet dim_type, int num_threads) {
 
 	ent_xy2d->NC_create(str_dim_type + "-2D Entropy contributions");
 
-	ptaskset->start = chrono::high_resolution_clock::now();
+	ptaskset->start = Clock::now();
 	ptaskset->current = ptaskset->start;
 	ptaskset->strt_read = ptaskset->curr_read = ptaskset->start;
 	ptaskset->strt_comp = ptaskset->curr_comp = ptaskset->start;
@@ -2948,8 +2949,8 @@ void EntropyCalculator::run2d_xy(BATSet dim_type, int num_threads) {
 //		numeric_limits<u_int>::max());
 // 5 elements: (start-d1, end-d1, start-d2, end-d2, block_tasks) for every block
 	vector<u_int> block_boundry(5);
-	int block_count = 0, block_tasks = 0;
-	bool block_ready = false;
+	//int block_count = 0; block_tasks = 0;
+	//bool block_ready = false;
 
 	const u_int num_xy2DKeys = dimTypeKeys.size();
 //u_int d1 = 0;
@@ -2966,7 +2967,7 @@ void EntropyCalculator::run2d_xy(BATSet dim_type, int num_threads) {
 				CoordBAT(0, n_schemes, nframes_tot_eff));
 
 		// Fill Cache with rows
-		auto _startr = chrono::high_resolution_clock::now();
+		auto _startr = Clock::now();
 		for (auto rno = 0; rno < bl_rows; ++rno) {
 			const u_int dtyp_id1 = dimTypeKeys[bi + rno];
 			crd_rows[rno].setId(dtyp_id1);
@@ -2979,11 +2980,11 @@ void EntropyCalculator::run2d_xy(BATSet dim_type, int num_threads) {
 					&dtyps1_extrm_v[rno][3], &n_schemes, &nfrm_eff_entropy,
 					&dtyps1_int_v[rno]);
 		}
-		auto _endr = chrono::high_resolution_clock::now();
-		auto _dur_rd = chrono::duration_cast<chrono::nanoseconds>(
+		auto _endr = Clock::now();
+		auto _dur_rd = chrono::duration_cast<ClockResolution>(
 				_endr - _startr).count();
-		ptaskset->curr_read += chrono::nanoseconds(_dur_rd);
-		progressstate.entc.curr_read += chrono::nanoseconds(_dur_rd);
+		ptaskset->curr_read += ClockResolution(_dur_rd);
+		progressstate.entc.curr_read += ClockResolution(_dur_rd);
 
 		for (u_int bj = 0; bj < n_dim_y_eff; bj += chached_dims) {
 			const int bl_cols =
@@ -3021,7 +3022,7 @@ void EntropyCalculator::run2d_xy(BATSet dim_type, int num_threads) {
 						CoordBAT(0, n_schemes, nframes_tot_eff));
 
 				// read and cache cols
-				auto _startr2 = chrono::high_resolution_clock::now();
+				auto _startr2 = Clock::now();
 				for (map<u_int, u_int>::iterator it = read_cols_dims.begin();
 						it != read_cols_dims.end(); ++it) {
 					//const u_int ang_id2 = it->first;
@@ -3037,11 +3038,11 @@ void EntropyCalculator::run2d_xy(BATSet dim_type, int num_threads) {
 							&dtyps2_extrm_v[it->second][3], &n_schemes,
 							&nfrm_eff_entropy, &dtyps2_int_v[it->second]);
 				}
-				auto _endr2 = chrono::high_resolution_clock::now();
-				auto _dur2_rd = chrono::duration_cast<chrono::nanoseconds>(
+				auto _endr2 = Clock::now();
+				auto _dur2_rd = chrono::duration_cast<ClockResolution>(
 						_endr2 - _startr2).count();
-				ptaskset->curr_read += chrono::nanoseconds(_dur2_rd);
-				progressstate.entc.curr_read += chrono::nanoseconds(_dur2_rd);
+				ptaskset->curr_read += ClockResolution(_dur2_rd);
+				progressstate.entc.curr_read += ClockResolution(_dur2_rd);
 				//
 
 				vector<vector<ull_int>> freq2_ad_obs_v(block_tasks,
@@ -3060,7 +3061,7 @@ void EntropyCalculator::run2d_xy(BATSet dim_type, int num_threads) {
 						DimEntropy(dummy_ids, (hbin_t) nsteps, n_schemes,
 								nestimators));
 
-				auto _endcomm1 = chrono::high_resolution_clock::now();
+				auto _endcomm1 = Clock::now();
 
 #pragma omp parallel for
 				for (auto ri = bi; ri < bi + bl_rows; ++ri) {
@@ -3120,17 +3121,17 @@ void EntropyCalculator::run2d_xy(BATSet dim_type, int num_threads) {
 						}
 					}
 				}
-				auto _endcomp = chrono::high_resolution_clock::now();
-				auto _durcomp = chrono::duration_cast<chrono::nanoseconds>(
+				auto _endcomp = Clock::now();
+				auto _durcomp = chrono::duration_cast<ClockResolution>(
 						_endcomp - _endcomm1).count();
-				ptaskset->curr_comp += chrono::nanoseconds(_durcomp);
-				progressstate.entc.curr_comp += chrono::nanoseconds(_durcomp);
+				ptaskset->curr_comp += ClockResolution(_durcomp);
+				progressstate.entc.curr_comp += ClockResolution(_durcomp);
 
-				auto _endcomm2 = chrono::high_resolution_clock::now();
-				auto _durcomm2 = chrono::duration_cast<chrono::nanoseconds>(
+				auto _endcomm2 = Clock::now();
+				auto _durcomm2 = chrono::duration_cast<ClockResolution>(
 						_endcomm2 - _endcomp).count();
-				ptaskset->curr_comm += chrono::nanoseconds(_durcomm2);
-				progressstate.entc.curr_comm += chrono::nanoseconds(_durcomm2);
+				ptaskset->curr_comm += ClockResolution(_durcomm2);
+				progressstate.entc.curr_comm += ClockResolution(_durcomm2);
 
 				if (isWritefreq && (frqWriteset & dim_type)) {
 					if (xy2DHist->writeRecords(bingrp_v) != 0) {
@@ -3141,12 +3142,12 @@ void EntropyCalculator::run2d_xy(BATSet dim_type, int num_threads) {
 				}
 				ent_xy2d->writeRecords(dimentropy_v);
 
-				auto _endwrt = chrono::high_resolution_clock::now();
-				auto _durwrt = chrono::duration_cast<chrono::nanoseconds>(
+				auto _endwrt = Clock::now();
+				auto _durwrt = chrono::duration_cast<ClockResolution>(
 						_endwrt - _endcomm2).count();
-				ptaskset->curr_write += chrono::nanoseconds(_durwrt);
-				progressstate.entc.curr_write += chrono::nanoseconds(_durwrt);
-				ptaskset->current = chrono::high_resolution_clock::now();
+				ptaskset->curr_write += ClockResolution(_durwrt);
+				progressstate.entc.curr_write += ClockResolution(_durwrt);
+				ptaskset->current = Clock::now();
 				progressstate.entc.current = ptaskset->current;
 				ptaskset->done_tasks += block_tasks;
 				progressstate.entc.done_tasks += block_tasks;
@@ -3163,7 +3164,7 @@ void EntropyCalculator::run2d_xy(BATSet dim_type, int num_threads) {
 			}
 		}
 	} // ang-dih block calc for d1 ends
-	ptaskset->current = chrono::high_resolution_clock::now();
+	ptaskset->current = Clock::now();
 	ptaskset->cstt = ExecState::COMPLETED;
 	progressstate.entc.current = ptaskset->current;
 	int entc_workset_intval = static_cast<int>(inputs.getEntropy().getWorkSet());

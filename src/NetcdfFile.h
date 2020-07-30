@@ -18,7 +18,7 @@ public:
 	NCTYPE GetNetcdfConventions(const char*);
 
 	NetcdfFile() :
-			ncid_(-1), ncdebug_(-1), ncmode_(-1) {
+			ncdebug_(-1), ncid_(-1), ncmode_(-1) {
 		ncfilename_ = "";
 	}
 
@@ -41,7 +41,7 @@ protected:
 	std::string ncfilename_;
 
 	NetcdfFile(std::string filename) :
-			ncid_(-1), ncdebug_(-1), ncmode_(-1), ncfilename_(filename) {
+			ncdebug_(-1), ncid_(-1), ncmode_(-1), ncfilename_(filename) {
 	}
 
 	bool checkNCerr(int);

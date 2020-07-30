@@ -32,6 +32,7 @@
 
 #include "configcentre.h"
 #include "Timer.h"
+#include "Centre.h"
 #include "NetcdfFile.h"
 #include "Netcdf_HistUtils.h"
 #include "Netcdf_BAT.h"
@@ -49,7 +50,7 @@ enum ExecState {
 };
 
 struct ProgTaskSet {
-	typedef std::chrono::high_resolution_clock::time_point CTimePoint;
+	typedef Clock::time_point CTimePoint;
 	std::string name;
 	bool active;
 	ExecState cstt;
@@ -70,7 +71,7 @@ struct ProgTaskSet {
 		name = std::string(name_.c_str());
 		active = false;
 		cstt = ExecState::DISABLED;
-		auto NOW = std::chrono::high_resolution_clock::now();
+		auto NOW = Clock::now();
 		start = NOW;
 		current = NOW;
 		strt_read = NOW;
@@ -89,7 +90,7 @@ struct ProgTaskSet {
 		name = std::string("UN-NAMED");
 		active = false;
 		cstt = ExecState::DISABLED;
-		auto NOW = std::chrono::high_resolution_clock::now();
+		auto NOW = Clock::now();
 		start = NOW;
 		current = NOW;
 		strt_read = NOW;

@@ -95,7 +95,7 @@ std::ostream& operator<<(std::ostream &os, const CoordBAT &bg) {
 			<< ", " << (int) bg.n_frame_ << "}" << std::endl;
 	for (auto i = 0; i < bg.bin_schemes_count_; ++i) {
 		std::cout << "Scheme [" << (i + 1) << "]: ";
-		for (auto j = 0; j < bg.n_frame_; ++j) {
+		for (auto j = 0U; j < bg.n_frame_; ++j) {
 			os << (ull_int) bg.coord_[i * bg.bin_schemes_count_ + j];
 			if ((j + 1) % bg.n_frame_ != 0)
 				os << ", ";
@@ -546,7 +546,7 @@ int Netcdf_TrjInt::NC_create(std::string const &filename,
 	// int dimensionID[NC_MAX_VAR_DIMS];
 
 	//nc_type dataType;
-	NCTYPE type = NCTYPE::NC_CENTREHIST;
+	//NCTYPE type = NCTYPE::NC_CENTREHIST;
 
 	// NC_64BIT_DATA NC_NETCDF4
 	if (checkNCerr(
@@ -722,11 +722,6 @@ int Netcdf_TrjInt::NC_create(std::string const &filename,
 	dimsBinFreq[0] = dimDID_;
 	dimsBinFreq[1] = binSchemesDID_;
 	dimsBinFreq[2] = frameDID_;
-
-	unsigned long chunkSizes[4];
-	chunkSizes[0] = 1;
-	chunkSizes[1] = bin_schemes_count_; // bin_schemes_count_ : 1
-	chunkSizes[2] = n_frame_;
 
 	if (checkNCerr(
 			nc_def_var(ncid_, TI_V_NC_COORD, NC_UBYTE, 3, &dimsBinFreq[0],

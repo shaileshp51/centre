@@ -11,26 +11,23 @@
 
 using namespace std;
 
-#define BINTRAJ 1
+#define NCTRAJ 1
 
 // NetcdfFile::GetNetcdfConventions()
 
 NetcdfFile::NCTYPE NetcdfFile::GetNetcdfConventions(const char *fname) {
 	NCTYPE nctype = NC_UNKNOWN;
-#ifdef BINTRAJ
 	// NOTE: Do not use checkNCerr so this fails silently. Allows routine to
 	//       be used in file autodetection.
 	if (nc_open(fname, NC_NOWRITE, &ncid_) != NC_NOERR)
 		return NC_UNKNOWN;
 	nctype = getNetcdfConventions();
 	NC_close();
-#else
-	cerr << "Error: Compiled without NETCDF support. Recompile with -DBINTRAJ\n" << endl;
-#endif
+
 	return nctype;
 }
 
-#ifdef BINTRAJ
+#ifdef NCTRAJ
 // DEFINES
 #define NCPSEUDOS  "pseudos"
 #define NCTUPLE2   "tuple2"

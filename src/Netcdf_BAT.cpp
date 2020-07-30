@@ -110,21 +110,12 @@ int Netcdf_BAT::setupRead(CoordinateInfo &cInfo) {
 		count_[0] = ncpseudos_;
 		count_[1] = 2;
 		std::vector<long> pseudo(2 * ncpseudos_);
-#ifdef DEBUG_CODE
-      std::cout << "Bonds: " << ncbonds_ << std::endl;
-#endif
 		size_t num_pseudo = 2 * ncpseudos_;
 		if (nc_get_vara_long(ncid_, pseudoBondsVID_, &start_[0], &count_[0],
 				&pseudo[0]) == NC_NOERR) {
 			if (ncdebug_ > 0)
-				mprintf("\tNetcdf file has pseudos.\n");
+				mprintf("\tNetcdf file has %d pseudos.\n", num_pseudo/2);
 		}
-#ifdef DEBUG_CODE
-      std::cout << "Pseudos: (" << pseudo.size() << ") " << num_pseudo << std::endl;
-      for (int v = 0; v < pseudo.size() - 1; v += 2) {
-         std::cout << " " << pseudo[v] << ", " << pseudo[v + 1];
-      }
-#endif
 		cInfo.SetPseudo(ncpseudos_);
 		cInfo.SetPseudoBonds(pseudo);
 	} else {
@@ -137,11 +128,6 @@ int Netcdf_BAT::setupRead(CoordinateInfo &cInfo) {
 	cInfo.SetAngle(ncangles_);
 	cInfo.SetDihedral(ncdihedrals_);
 
-#ifdef DEBUG_CODE
-   std::cout << r1 << ", " << r2 << ", " << r3 << std::endl;
-   std::cout << "Roots : " << rootIndices << " , hasPseudo: '" << hasPseudos << "' "
-   << "No. Pseudo: " << ncpseudos_ << std::endl;
-#endif
 	return 0;
 }
 
@@ -267,8 +253,8 @@ int Netcdf_BAT::readMultiBondFrames(size_t from_bnd_id, size_t n_bnds,
 		}
 		// transpose tmp to get data, every dim in inner vector (column wise)
 		size_t tt = 0;
-		for (auto ti = 0; ti < data[0].size(); ++ti) {
-			for (auto tj = 0; tj < data.size(); ++tj) {
+		for (auto ti = 0U; ti < data[0].size(); ++ti) {
+			for (auto tj = 0U; tj < data.size(); ++tj) {
 				data[tj][ti] = tmp[tt];
 				++tt;
 			}
@@ -299,8 +285,8 @@ int Netcdf_BAT::readMultiAngleFrames(size_t from_ang_id, size_t n_angs,
 		}
 		// transpose tmp to get data, every dim in inner vector (column wise)
 		size_t tt = 0;
-		for (auto ti = 0; ti < data[0].size(); ++ti) {
-			for (auto tj = 0; tj < data.size(); ++tj) {
+		for (auto ti = 0U; ti < data[0].size(); ++ti) {
+			for (auto tj = 0U; tj < data.size(); ++tj) {
 				data[tj][ti] = tmp[tt];
 				++tt;
 			}
@@ -331,8 +317,8 @@ int Netcdf_BAT::readMultiDihedralFrames(size_t from_dih_id, size_t n_tors,
 		}
 // transpose tmp to get data, every dim in inner vector (column wise)
 		size_t tt = 0;
-		for (auto ti = 0; ti < data[0].size(); ++ti) {
-			for (auto tj = 0; tj < data.size(); ++tj) {
+		for (auto ti = 0U; ti < data[0].size(); ++ti) {
+			for (auto tj = 0U; tj < data.size(); ++tj) {
 				data[tj][ti] = tmp[tt];
 				++tt;
 			}
@@ -350,7 +336,7 @@ int Netcdf_BAT::setupWrite() {
 	if (ncid_ == -1) {
 		NC_openWrite(filename_);
 	}
-	int temp;
+	//int temp;
 	tuple2DID_ = getDimInfo(NCTUPLE2, &nctuple2_);
 	pseudoDID_ = getDimInfo(NCPSEUDOS, &ncpseudos_);
 	frameDID_ = getDimInfo(NCFRAME, &ncframe_);
@@ -404,7 +390,7 @@ int Netcdf_BAT::appendFrames(const std::vector<data_t> &time,
 	}
 //  std::cout << "Writing record..." << std::endl;
 	setupWrite();
-	ull_int nframes;
+	//ull_int nframes;
 
 	size_t start[2], count[2];
 
@@ -455,7 +441,7 @@ int Netcdf_BAT::NC_create(std::string const &Name, NCTYPE type,
 	chunkSizes[0] = 4096;
 	chunkSizes[1] = 4;
 
-	int NDIM;
+	//int NDIM;
 	int numpseduos;
 	nc_type dataType;
 
@@ -465,7 +451,7 @@ int Netcdf_BAT::NC_create(std::string const &Name, NCTYPE type,
 	// Set number of dimensions based on file type
 	switch (type) {
 	case NC_CENTRETRAJ:
-		NDIM = 3;
+		//NDIM = 3;
 		dataType = NC_FLOAT;
 		break;
 	default:
@@ -722,21 +708,3 @@ int Netcdf_BAT::NC_create(std::string const &Name, NCTYPE type,
 	}
 	return 0;
 }
-
-/** Convert float coords to double coords
- * NOTE: natom3 needs to match up with size of Coord!
- */
-void Netcdf_BAT::floatToDouble(double *X, const float *Coord, int length) {
-	for (int i = 0; i < length; ++i)
-		X[i] = (double) Coord[i];
-}
-
-// DoubleToFloat()
-
-/** Convert double coords to float coords
- */
-void Netcdf_BAT::doubleToFloat(float *Coord, const double *X, int length) {
-	for (int i = 0; i < length; ++i)
-		Coord[i] = (float) X[i];
-}
-

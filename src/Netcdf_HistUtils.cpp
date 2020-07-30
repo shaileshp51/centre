@@ -428,10 +428,6 @@ int Netcdf_HistUtil::readRecord(const size_t dim_index,
 		mprinterr("Error: Reading record extrema data.\n");
 		return 1;
 	}
-#ifdef DEBUG_CODE
-	std::cout << "Record ID: start: [" << start[0] << ", " << start[1]
-			<< "] count: [" << count[0] << ", " << count[1] << "]" << std::endl;
-#endif
 
 	start[1] = 0;
 	count[1] = nstep_eff_;
@@ -445,13 +441,6 @@ int Netcdf_HistUtil::readRecord(const size_t dim_index,
 		mprinterr("Error: Reading record frequency data.\n");
 		return 1;
 	}
-
-#ifdef DEBUG_CODE
-	std::cout << "Record Bin Freqs: start: [" << start[0] << ", " << start[1]
-			<< ", " << start[2];
-	std::cout << "] count: [" << count[0] << ", " << count[1] << ", "
-			<< count[2] << "]" << std::endl;
-#endif
 
 	NC_close();
 	return 0;
@@ -487,10 +476,6 @@ int Netcdf_HistUtil::readRecord(const size_t dim_index,
 		mprinterr("Error: Reading record_id data.\n");
 		return 1;
 	}
-#ifdef DEBUG_CODE
-	std::cout << "Record ID: start: [" << start[0] << ", " << start[1]
-			<< "] count: [" << count[0] << ", " << count[1] << "]" << std::endl;
-#endif
 
 	start[0] = dim_index;
 	start[1] = 0;
@@ -505,10 +490,6 @@ int Netcdf_HistUtil::readRecord(const size_t dim_index,
 		mprinterr("Error: Reading record_id data.\n");
 		return 1;
 	}
-#ifdef DEBUG_CODE
-	std::cout << "Record ID: start: [" << start[0] << ", " << start[1]
-			<< "] count: [" << count[0] << ", " << count[1] << "]" << std::endl;
-#endif
 
 	start[1] = 0;
 	count[1] = nstep_eff_;
@@ -522,13 +503,6 @@ int Netcdf_HistUtil::readRecord(const size_t dim_index,
 		mprinterr("Error: Reading record frequency data.\n");
 		return 1;
 	}
-
-#ifdef DEBUG_CODE
-	std::cout << "Record Bin Freqs: start: [" << start[0] << ", " << start[1]
-			<< ", " << start[2];
-	std::cout << "] count: [" << count[0] << ", " << count[1] << ", "
-			<< count[2] << "]" << std::endl;
-#endif
 
 	NC_close();
 	return 0;
@@ -566,10 +540,6 @@ int Netcdf_HistUtil::readRecord(const size_t dim_index,
 		mprinterr("Error: Reading record_id data.\n");
 		return 1;
 	}
-#ifdef DEBUG_CODE
-	std::cout << "Record ID: start: [" << start[0] << ", " << start[1]
-			<< "] count: [" << count[0] << ", " << count[1] << "]" << std::endl;
-#endif
 
 	start[0] = dim_index;
 	start[1] = 0;
@@ -584,10 +554,6 @@ int Netcdf_HistUtil::readRecord(const size_t dim_index,
 		mprinterr("Error: Reading record_id data.\n");
 		return 1;
 	}
-#ifdef DEBUG_CODE
-	std::cout << "Record ID: start: [" << start[0] << ", " << start[1]
-			<< "] count: [" << count[0] << ", " << count[1] << "]" << std::endl;
-#endif
 
 	start[1] = 0;
 	count[1] = ndims_ * dimsXbin_schemes_sum_;
@@ -597,10 +563,7 @@ int Netcdf_HistUtil::readRecord(const size_t dim_index,
 		mprinterr("Error: Reading bin mid data.\n");
 		return 1;
 	}
-#ifdef DEBUG_CODE
-	std::cout << "Record Bin Mids: start: [" << start[0] << ", " << start[1]
-			<< "] count: [" << count[0] << ", " << count[1] << "]" << std::endl;
-#endif
+
 	start[1] = 0;
 	count[1] = nstep_eff_;
 
@@ -613,13 +576,6 @@ int Netcdf_HistUtil::readRecord(const size_t dim_index,
 		mprinterr("Error: Reading record frequency data.\n");
 		return 1;
 	}
-
-#ifdef DEBUG_CODE
-	std::cout << "Record Bin Freqs: start: [" << start[0] << ", " << start[1]
-			<< ", " << start[2];
-	std::cout << "] count: [" << count[0] << ", " << count[1] << ", "
-			<< count[2] << "]" << std::endl;
-#endif
 
 	NC_close();
 	return 0;
@@ -644,10 +600,6 @@ int Netcdf_HistUtil::readRecord(const size_t start_index, BinGroup rd) {
 		mprinterr("Error: Reading record_id data.\n");
 		return 1;
 	}
-#ifdef DEBUG_CODE
-	std::cout << "Record ID: start: [" << start[0] << ", " << start[1]
-			<< "] count: [" << count[0] << ", " << count[1] << "]" << std::endl;
-#endif
 
 	start[0] = start_index;
 	start[1] = 0;
@@ -662,10 +614,6 @@ int Netcdf_HistUtil::readRecord(const size_t start_index, BinGroup rd) {
 		mprinterr("Error: Reading record_id data.\n");
 		return 1;
 	}
-#ifdef DEBUG_CODE
-	std::cout << "Record ID: start: [" << start[0] << ", " << start[1]
-			<< "] count: [" << count[0] << ", " << count[1] << "]" << std::endl;
-#endif
 
 	start[1] = 0;
 	count[1] = ndims_ * dimsXbin_schemes_sum_;
@@ -675,10 +623,7 @@ int Netcdf_HistUtil::readRecord(const size_t start_index, BinGroup rd) {
 		mprinterr("Error: Reading bin mid data.\n");
 		return 1;
 	}
-#ifdef DEBUG_CODE
-	std::cout << "Record Bin Mids: start: [" << start[0] << ", " << start[1]
-			<< "] count: [" << count[0] << ", " << count[1] << "]" << std::endl;
-#endif
+
 	start[1] = 0;
 	count[1] = nstep_eff_;
 
@@ -700,13 +645,6 @@ int Netcdf_HistUtil::readRecord(const size_t start_index, BinGroup rd) {
 
 	rd.setBinFreqs(0, 1, nstep_eff_, 0, bin_pow_dims_sum_, freqs_v);
 
-#ifdef DEBUG_CODE
-	std::cout << "Record Bin Freqs: start: [" << start[0] << ", " << start[1]
-			<< ", " << start[2];
-	std::cout << "] count: [" << count[0] << ", " << count[1] << ", "
-			<< count[2] << "]" << std::endl;
-#endif
-
 	NC_close();
 	return 0;
 }
@@ -718,16 +656,14 @@ int Netcdf_HistUtil::writeRecord(BinGroup &rec) {
 
 	rec.getId(&sz_id, &id);
 	size_t start[3], count[3];
-#ifdef DEBUG_CODE_2
-	std::cout << "Writing Records in file: " << nrecords << ", " << (int) sz_id << std::endl;
-#endif
+
 	start[0] = nrecords;
 	start[1] = 0;
 	count[0] = 1;
 	count[1] = sz_id;
 	unsigned int id_u = (*id);
 	if (checkNCerr(nc_put_vara_uint(ncid_, recordIdVID_, start, count, id))) {
-		mprinterr("Error: Writing record Id data.\n");
+		mprinterr("Error: Writing record data with Id=%d\n", id_u);
 		return 1;
 	}
 
@@ -741,7 +677,7 @@ int Netcdf_HistUtil::writeRecord(BinGroup &rec) {
 	count[1] = sz_id;
 	count[2] = sz_ext / sz_id;
 	if (checkNCerr(nc_put_vara_double(ncid_, extrmVID_, start, count, ext))) {
-		mprinterr("Error: Writing record Id data.\n");
+		mprinterr("Error: Writing record extrema data.\n");
 		return 1;
 	}
 
@@ -767,9 +703,6 @@ int Netcdf_HistUtil::writeRecord(BinGroup &rec) {
 		mprinterr("Error: Writing record Id data.\n");
 		return 1;
 	}
-#ifdef DEBUG_CODE_2
-	std::cout << "Record Id: " << *id;
-#endif
 
 	NC_close();
 	return 0;
@@ -783,9 +716,7 @@ int Netcdf_HistUtil::writeRecords(std::vector<BinGroup> &vec_rec) {
 		setupWrite();
 		rec.getId(&sz_id, &id);
 		size_t start[3], count[3];
-#ifdef DEBUG_CODE_2
-		std::cout << "Writing Records in file: " << nrecords << ", " << (int) sz_id << std::endl;
-#endif
+
 		start[0] = nrecords;
 		start[1] = 0;
 		count[0] = 1;
@@ -793,7 +724,7 @@ int Netcdf_HistUtil::writeRecords(std::vector<BinGroup> &vec_rec) {
 		unsigned int id_u = (*id);
 		if (checkNCerr(
 				nc_put_vara_uint(ncid_, recordIdVID_, start, count, id))) {
-			mprinterr("Error: Writing record Id data.\n");
+			mprinterr("Error: Writing record data with Id = %d\n", id_u);
 			return 1;
 		}
 
@@ -835,9 +766,7 @@ int Netcdf_HistUtil::writeRecords(std::vector<BinGroup> &vec_rec) {
 			mprinterr("Error: Writing record Id data.\n");
 			return 1;
 		}
-#ifdef DEBUG_CODE_2
-		std::cout << "Record Id: " << *id;
-#endif
+
 		NC_close();
 	}
 
@@ -881,12 +810,6 @@ int Netcdf_HistUtil::NC_create(std::string const &filename,
 	if (filename.empty())
 		return 1;
 
-	/*
-	 if (ncdebug_>1)
-	 mprintf("DEBUG: NC_create: %s  natom=%i V=%i  box=%i  temp=%i  time=%i\n",
-	 Name.c_str(),natomIn,(int)coordInfo.HasVel(),(int)coordInfo.HasBox(),
-	 (int)coordInfo.HasTemp(),(int)coordInfo.HasTime()); NETCDF3_64BIT_DATA
-	 * */
 	if (checkNCerr(
 			nc_create(filename.c_str(), NC_NOCLOBBER | NC_64BIT_DATA, &ncid_)))
 		return 1;

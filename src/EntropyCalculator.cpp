@@ -67,7 +67,7 @@ void EntropyCalculator::run1d(BAT_t bat_type, int num_threads) {
 			str_dim_type, 1, 1, nsteps, dim_lens, TensorType::FULL, bin_schemes,
 			nestimators);
 
-	ptaskset->start = std::chrono::high_resolution_clock::now();
+	ptaskset->start = Clock::now();
 	ptaskset->current = ptaskset->start;
 	ptaskset->strt_read = ptaskset->curr_read = ptaskset->start;
 	ptaskset->strt_comp = ptaskset->curr_comp = ptaskset->start;
@@ -102,7 +102,7 @@ void EntropyCalculator::run1d(BAT_t bat_type, int num_threads) {
 		 bl_details[1] = block_tasks;
 		 **/
 
-		auto _startr = std::chrono::high_resolution_clock::now();
+		auto _startr = Clock::now();
 		std::vector<hbin_t*> d1ds_int_v(block_tasks);
 		std::vector<std::vector<double>> d1ds_extrm_v(block_tasks,
 				std::vector<double>(4, 0.0));
@@ -128,7 +128,7 @@ void EntropyCalculator::run1d(BAT_t bat_type, int num_threads) {
 			crd[idx].setId(dim_id);
 			if (intD1DTraj->readCoords(dim_id, 0, (hbin_t) n_schemes, crd[idx])
 					!= 0) {
-				mprinterr("Error: Reading int %s id(%d)", str_dim_type, dim_id);
+				mprinterr("Error: Reading int %s id(%d)", str_dim_type.c_str(), dim_id);
 			}
 			crd[idx].getCoords(&d1ds_extrm_v[idx][0], &d1ds_extrm_v[idx][1],
 					&d1ds_extrm_v[idx][2], &d1ds_extrm_v[idx][3], &n_schemes,
@@ -139,17 +139,17 @@ void EntropyCalculator::run1d(BAT_t bat_type, int num_threads) {
 					<< dim_id << ")" << std::endl;
 #endif
 		}
-		auto _endr = std::chrono::high_resolution_clock::now();
-		auto _dur_rd = std::chrono::duration_cast<std::chrono::nanoseconds>(
+		auto _endr = Clock::now();
+		auto _dur_rd = std::chrono::duration_cast<ClockResolution>(
 				_endr - _startr).count();
-		ptaskset->curr_read += std::chrono::nanoseconds(_dur_rd);
-		progressstate.entc.curr_read += std::chrono::nanoseconds(_dur_rd);
+		ptaskset->curr_read += ClockResolution(_dur_rd);
+		progressstate.entc.curr_read += ClockResolution(_dur_rd);
 
-		auto _endcomm1 = std::chrono::high_resolution_clock::now();
-		auto _durcomm1 = std::chrono::duration_cast<std::chrono::nanoseconds>(
+		auto _endcomm1 = Clock::now();
+		auto _durcomm1 = std::chrono::duration_cast<ClockResolution>(
 				_endcomm1 - _endr).count();
-		ptaskset->curr_comm += std::chrono::nanoseconds(_durcomm1);
-		progressstate.entc.curr_comm += std::chrono::nanoseconds(_durcomm1);
+		ptaskset->curr_comm += ClockResolution(_durcomm1);
+		progressstate.entc.curr_comm += ClockResolution(_durcomm1);
 
 #pragma omp parallel for
 		for (int idx = 0; idx < block_tasks; ++idx) {
@@ -182,17 +182,17 @@ void EntropyCalculator::run1d(BAT_t bat_type, int num_threads) {
 			}
 		}
 
-		auto _endcomp = std::chrono::high_resolution_clock::now();
-		auto _durcomp = std::chrono::duration_cast<std::chrono::nanoseconds>(
+		auto _endcomp = Clock::now();
+		auto _durcomp = std::chrono::duration_cast<ClockResolution>(
 				_endcomp - _endcomm1).count();
-		ptaskset->curr_comp += std::chrono::nanoseconds(_durcomp);
-		progressstate.entc.curr_comp += std::chrono::nanoseconds(_durcomp);
+		ptaskset->curr_comp += ClockResolution(_durcomp);
+		progressstate.entc.curr_comp += ClockResolution(_durcomp);
 
-		auto _endcomm2 = std::chrono::high_resolution_clock::now();
-		auto _durcomm2 = std::chrono::duration_cast<std::chrono::nanoseconds>(
+		auto _endcomm2 = Clock::now();
+		auto _durcomm2 = std::chrono::duration_cast<ClockResolution>(
 				_endcomm2 - _endcomp).count();
-		ptaskset->curr_comm += std::chrono::nanoseconds(_durcomm2);
-		progressstate.entc.curr_comm += std::chrono::nanoseconds(_durcomm2);
+		ptaskset->curr_comm += ClockResolution(_durcomm2);
+		progressstate.entc.curr_comm += ClockResolution(_durcomm2);
 
 		if (isWritefreq && (frqWriteset & bat_type)) {
 			if (d1DHist->writeRecords(bingrp_v) != 0) {
@@ -203,12 +203,12 @@ void EntropyCalculator::run1d(BAT_t bat_type, int num_threads) {
 		}
 		ent_dim1d->writeRecords(dimentropy_v);
 
-		auto _endwrt = std::chrono::high_resolution_clock::now();
-		auto _durwrt = std::chrono::duration_cast<std::chrono::nanoseconds>(
+		auto _endwrt = Clock::now();
+		auto _durwrt = std::chrono::duration_cast<ClockResolution>(
 				_endwrt - _endcomm2).count();
-		ptaskset->curr_write += std::chrono::nanoseconds(_durwrt);
-		progressstate.entc.curr_write += std::chrono::nanoseconds(_durwrt);
-		ptaskset->current = std::chrono::high_resolution_clock::now();
+		ptaskset->curr_write += ClockResolution(_durwrt);
+		progressstate.entc.curr_write += ClockResolution(_durwrt);
+		ptaskset->current = Clock::now();
 		progressstate.entc.current = ptaskset->current;
 		ptaskset->done_tasks += block_tasks;
 		progressstate.entc.done_tasks += block_tasks;
@@ -223,7 +223,7 @@ void EntropyCalculator::run1d(BAT_t bat_type, int num_threads) {
 			entc_tasks_done %= entc_tasks_freq;
 		}
 	}
-	ptaskset->current = std::chrono::high_resolution_clock::now();
+	ptaskset->current = Clock::now();
 	ptaskset->cstt = ExecState::COMPLETED;
 	progressstate.entc.current = ptaskset->current;
 	time_d1.stop();
@@ -363,7 +363,7 @@ void EntropyCalculator::run2d_xx(BATSet dim_type, int num_threads) {
 			str_dim_type, 2, 2, nsteps, dim_lens, TensorType::UPPER,
 			bin_schemes, nestimators);
 
-	ptaskset->start = std::chrono::high_resolution_clock::now();
+	ptaskset->start = Clock::now();
 	ptaskset->current = ptaskset->start;
 	ptaskset->strt_read = ptaskset->curr_read = ptaskset->start;
 	ptaskset->strt_comp = ptaskset->curr_comp = ptaskset->start;
@@ -388,8 +388,8 @@ void EntropyCalculator::run2d_xx(BATSet dim_type, int num_threads) {
 	//		std::numeric_limits<u_int>::max());
 	// 5 elements: (start-d1, end-d1, start-d2, end-d2, block_tasks) for every block
 	std::vector<u_int> block_boundry(5);
-	int block_count = 0, block_tasks = 0;
-	bool block_ready = false;
+	//int block_count = 0, block_tasks = 0;
+	//bool block_ready = false;
 
 	const u_int num_dimTypeKeys = dimTypeKeys.size();
 
@@ -408,7 +408,7 @@ void EntropyCalculator::run2d_xx(BATSet dim_type, int num_threads) {
 				CoordBAT(0, n_schemes, nframes_tot_eff));
 
 		// Fill Cache with rows
-		auto _startr = std::chrono::high_resolution_clock::now();
+		auto _startr = Clock::now();
 		for (auto rno = 0; rno < bl_rows; ++rno) {
 			const u_int dtyp_id1 = dimTypeKeys[bi + rno];
 			crd_rows[rno].setId(dtyp_id1);
@@ -422,11 +422,11 @@ void EntropyCalculator::run2d_xx(BATSet dim_type, int num_threads) {
 					&dtyps1_extrm_v[rno][3], &n_schemes, &nfrm_eff_entropy,
 					&dtyps1_int_v[rno]);
 		}
-		auto _endr = std::chrono::high_resolution_clock::now();
-		auto _dur_rd = std::chrono::duration_cast<std::chrono::nanoseconds>(
+		auto _endr = Clock::now();
+		auto _dur_rd = std::chrono::duration_cast<ClockResolution>(
 				_endr - _startr).count();
-		ptaskset->curr_read += std::chrono::nanoseconds(_dur_rd);
-		progressstate.entc.curr_read += std::chrono::nanoseconds(_dur_rd);
+		ptaskset->curr_read += ClockResolution(_dur_rd);
+		progressstate.entc.curr_read += ClockResolution(_dur_rd);
 
 		for (u_int bj = 0; bj < n_dim_eff; bj += chached_dims) {
 			const int bl_cols =
@@ -464,7 +464,7 @@ void EntropyCalculator::run2d_xx(BATSet dim_type, int num_threads) {
 						CoordBAT(0, n_schemes, nframes_tot_eff));
 
 				// read and cache cols
-				auto _startr2 = std::chrono::high_resolution_clock::now();
+				auto _startr2 = Clock::now();
 				for (std::map<u_int, u_int>::iterator it =
 						read_cols_dims.begin(); it != read_cols_dims.end();
 						++it) {
@@ -482,11 +482,11 @@ void EntropyCalculator::run2d_xx(BATSet dim_type, int num_threads) {
 							&bnds2_extrm_v[it->second][3], &n_schemes,
 							&nfrm_eff_entropy, &dtyps2_int_v[it->second]);
 				}
-				auto _endr2 = std::chrono::high_resolution_clock::now();
+				auto _endr2 = Clock::now();
 				auto _dur2_rd = std::chrono::duration_cast<
-						std::chrono::nanoseconds>(_endr2 - _startr2).count();
-				ptaskset->curr_read += std::chrono::nanoseconds(_dur2_rd);
-				progressstate.entc.curr_read += std::chrono::nanoseconds(
+						ClockResolution>(_endr2 - _startr2).count();
+				ptaskset->curr_read += ClockResolution(_dur2_rd);
+				progressstate.entc.curr_read += ClockResolution(
 						_dur2_rd);
 				//
 
@@ -507,7 +507,7 @@ void EntropyCalculator::run2d_xx(BATSet dim_type, int num_threads) {
 						DimEntropy(dummy_ids, (hbin_t) nsteps, n_schemes,
 								nestimators));
 
-				auto _endcomm1 = std::chrono::high_resolution_clock::now();
+				auto _endcomm1 = Clock::now();
 
 #pragma omp parallel for
 				for (auto ri = bi; ri < bi + bl_rows; ++ri) {
@@ -567,18 +567,18 @@ void EntropyCalculator::run2d_xx(BATSet dim_type, int num_threads) {
 						}
 					}
 				}
-				auto _endcomp = std::chrono::high_resolution_clock::now();
+				auto _endcomp = Clock::now();
 				auto _durcomp = std::chrono::duration_cast<
-						std::chrono::nanoseconds>(_endcomp - _endcomm1).count();
-				ptaskset->curr_comp += std::chrono::nanoseconds(_durcomp);
-				progressstate.entc.curr_comp += std::chrono::nanoseconds(
+						ClockResolution>(_endcomp - _endcomm1).count();
+				ptaskset->curr_comp += ClockResolution(_durcomp);
+				progressstate.entc.curr_comp += ClockResolution(
 						_durcomp);
 
-				auto _endcomm2 = std::chrono::high_resolution_clock::now();
+				auto _endcomm2 = Clock::now();
 				auto _durcomm2 = std::chrono::duration_cast<
-						std::chrono::nanoseconds>(_endcomm2 - _endcomp).count();
-				ptaskset->curr_comm += std::chrono::nanoseconds(_durcomm2);
-				progressstate.entc.curr_comm += std::chrono::nanoseconds(
+						ClockResolution>(_endcomm2 - _endcomp).count();
+				ptaskset->curr_comm += ClockResolution(_durcomm2);
+				progressstate.entc.curr_comm += ClockResolution(
 						_durcomm2);
 
 				if (isWritefreq && (frqWriteset & BATSet::BB2D)) {
@@ -590,13 +590,13 @@ void EntropyCalculator::run2d_xx(BATSet dim_type, int num_threads) {
 				}
 				ent_xx2d->writeRecords(dimentropy_v);
 
-				auto _endwrt = std::chrono::high_resolution_clock::now();
+				auto _endwrt = Clock::now();
 				auto _durwrt = std::chrono::duration_cast<
-						std::chrono::nanoseconds>(_endwrt - _endcomm2).count();
-				ptaskset->curr_write += std::chrono::nanoseconds(_durwrt);
-				progressstate.entc.curr_write += std::chrono::nanoseconds(
+						ClockResolution>(_endwrt - _endcomm2).count();
+				ptaskset->curr_write += ClockResolution(_durwrt);
+				progressstate.entc.curr_write += ClockResolution(
 						_durwrt);
-				ptaskset->current = std::chrono::high_resolution_clock::now();
+				ptaskset->current = Clock::now();
 				progressstate.entc.current = ptaskset->current;
 				ptaskset->done_tasks += block_tasks;
 				progressstate.entc.done_tasks += block_tasks;
@@ -614,7 +614,7 @@ void EntropyCalculator::run2d_xx(BATSet dim_type, int num_threads) {
 		}
 	} // dih-dih block calc for d1 ends
 
-	ptaskset->current = std::chrono::high_resolution_clock::now();
+	ptaskset->current = Clock::now();
 	ptaskset->cstt = ExecState::COMPLETED;
 	progressstate.entc.current = ptaskset->current;
 	int entc_workset_intval = static_cast<int>(inputs.getEntropy().getWorkSet());
@@ -766,7 +766,7 @@ void EntropyCalculator::run2d_xy(BATSet dim_type, int num_threads) {
 
 	ent_xy2d->NC_create(str_dim_type + "-2D Entropy contributions");
 
-	ptaskset->start = std::chrono::high_resolution_clock::now();
+	ptaskset->start = Clock::now();
 	ptaskset->current = ptaskset->start;
 	ptaskset->strt_read = ptaskset->curr_read = ptaskset->start;
 	ptaskset->strt_comp = ptaskset->curr_comp = ptaskset->start;
@@ -789,8 +789,8 @@ void EntropyCalculator::run2d_xy(BATSet dim_type, int num_threads) {
 	//		std::numeric_limits<u_int>::max());
 	// 5 elements: (start-d1, end-d1, start-d2, end-d2, block_tasks) for every block
 	std::vector<u_int> block_boundry(5);
-	int block_count = 0, block_tasks = 0;
-	bool block_ready = false;
+	//int block_count = 0, block_tasks = 0;
+	//bool block_ready = false;
 
 	const u_int num_xy2DKeys = dimTypeKeys.size();
 	//u_int d1 = 0;
@@ -808,7 +808,7 @@ void EntropyCalculator::run2d_xy(BATSet dim_type, int num_threads) {
 				CoordBAT(0, n_schemes, nframes_tot_eff));
 
 		// Fill Cache with rows
-		auto _startr = std::chrono::high_resolution_clock::now();
+		auto _startr = Clock::now();
 		for (auto rno = 0; rno < bl_rows; ++rno) {
 			const u_int dtyp_id1 = dimTypeKeys[bi + rno];
 			crd_rows[rno].setId(dtyp_id1);
@@ -821,11 +821,11 @@ void EntropyCalculator::run2d_xy(BATSet dim_type, int num_threads) {
 					&dtyps1_extrm_v[rno][3], &n_schemes, &nfrm_eff_entropy,
 					&dtyps1_int_v[rno]);
 		}
-		auto _endr = std::chrono::high_resolution_clock::now();
-		auto _dur_rd = std::chrono::duration_cast<std::chrono::nanoseconds>(
+		auto _endr = Clock::now();
+		auto _dur_rd = std::chrono::duration_cast<ClockResolution>(
 				_endr - _startr).count();
-		ptaskset->curr_read += std::chrono::nanoseconds(_dur_rd);
-		progressstate.entc.curr_read += std::chrono::nanoseconds(_dur_rd);
+		ptaskset->curr_read += ClockResolution(_dur_rd);
+		progressstate.entc.curr_read += ClockResolution(_dur_rd);
 
 		for (u_int bj = 0; bj < n_dim_y_eff; bj += chached_dims) {
 			const int bl_cols =
@@ -863,7 +863,7 @@ void EntropyCalculator::run2d_xy(BATSet dim_type, int num_threads) {
 						CoordBAT(0, n_schemes, nframes_tot_eff));
 
 				// read and cache cols
-				auto _startr2 = std::chrono::high_resolution_clock::now();
+				auto _startr2 = Clock::now();
 				for (std::map<u_int, u_int>::iterator it =
 						read_cols_dims.begin(); it != read_cols_dims.end();
 						++it) {
@@ -880,11 +880,11 @@ void EntropyCalculator::run2d_xy(BATSet dim_type, int num_threads) {
 							&dtyps2_extrm_v[it->second][3], &n_schemes,
 							&nfrm_eff_entropy, &dtyps2_int_v[it->second]);
 				}
-				auto _endr2 = std::chrono::high_resolution_clock::now();
+				auto _endr2 = Clock::now();
 				auto _dur2_rd = std::chrono::duration_cast<
-						std::chrono::nanoseconds>(_endr2 - _startr2).count();
-				ptaskset->curr_read += std::chrono::nanoseconds(_dur2_rd);
-				progressstate.entc.curr_read += std::chrono::nanoseconds(
+						ClockResolution>(_endr2 - _startr2).count();
+				ptaskset->curr_read += ClockResolution(_dur2_rd);
+				progressstate.entc.curr_read += ClockResolution(
 						_dur2_rd);
 				//
 
@@ -905,7 +905,7 @@ void EntropyCalculator::run2d_xy(BATSet dim_type, int num_threads) {
 						DimEntropy(dummy_ids, (hbin_t) nsteps, n_schemes,
 								nestimators));
 
-				auto _endcomm1 = std::chrono::high_resolution_clock::now();
+				auto _endcomm1 = Clock::now();
 
 #pragma omp parallel for
 				for (auto ri = bi; ri < bi + bl_rows; ++ri) {
@@ -965,18 +965,18 @@ void EntropyCalculator::run2d_xy(BATSet dim_type, int num_threads) {
 						}
 					}
 				}
-				auto _endcomp = std::chrono::high_resolution_clock::now();
+				auto _endcomp = Clock::now();
 				auto _durcomp = std::chrono::duration_cast<
-						std::chrono::nanoseconds>(_endcomp - _endcomm1).count();
-				ptaskset->curr_comp += std::chrono::nanoseconds(_durcomp);
-				progressstate.entc.curr_comp += std::chrono::nanoseconds(
+						ClockResolution>(_endcomp - _endcomm1).count();
+				ptaskset->curr_comp += ClockResolution(_durcomp);
+				progressstate.entc.curr_comp += ClockResolution(
 						_durcomp);
 
-				auto _endcomm2 = std::chrono::high_resolution_clock::now();
+				auto _endcomm2 = Clock::now();
 				auto _durcomm2 = std::chrono::duration_cast<
-						std::chrono::nanoseconds>(_endcomm2 - _endcomp).count();
-				ptaskset->curr_comm += std::chrono::nanoseconds(_durcomm2);
-				progressstate.entc.curr_comm += std::chrono::nanoseconds(
+						ClockResolution>(_endcomm2 - _endcomp).count();
+				ptaskset->curr_comm += ClockResolution(_durcomm2);
+				progressstate.entc.curr_comm += ClockResolution(
 						_durcomm2);
 
 				if (isWritefreq && (frqWriteset & BATSet::AD2D)) {
@@ -988,13 +988,13 @@ void EntropyCalculator::run2d_xy(BATSet dim_type, int num_threads) {
 				}
 				ent_xy2d->writeRecords(dimentropy_v);
 
-				auto _endwrt = std::chrono::high_resolution_clock::now();
+				auto _endwrt = Clock::now();
 				auto _durwrt = std::chrono::duration_cast<
-						std::chrono::nanoseconds>(_endwrt - _endcomm2).count();
-				ptaskset->curr_write += std::chrono::nanoseconds(_durwrt);
-				progressstate.entc.curr_write += std::chrono::nanoseconds(
+						ClockResolution>(_endwrt - _endcomm2).count();
+				ptaskset->curr_write += ClockResolution(_durwrt);
+				progressstate.entc.curr_write += ClockResolution(
 						_durwrt);
-				ptaskset->current = std::chrono::high_resolution_clock::now();
+				ptaskset->current = Clock::now();
 				progressstate.entc.current = ptaskset->current;
 				ptaskset->done_tasks += block_tasks;
 				progressstate.entc.done_tasks += block_tasks;
@@ -1011,7 +1011,7 @@ void EntropyCalculator::run2d_xy(BATSet dim_type, int num_threads) {
 			}
 		}
 	} // ang-dih block calc for d1 ends
-	ptaskset->current = std::chrono::high_resolution_clock::now();
+	ptaskset->current = Clock::now();
 	ptaskset->cstt = ExecState::COMPLETED;
 	progressstate.entc.current = ptaskset->current;
 	int entc_workset_intval = static_cast<int>(inputs.getEntropy().getWorkSet());

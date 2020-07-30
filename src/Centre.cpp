@@ -3,13 +3,11 @@
 #include <limits>
 
 std::vector<Edge> boruvkaMST(Graph &graph) {
-	// Get data of given graph
 	int V = graph.nodes.size();
 	int E = graph.edges.size();
 	std::vector<Edge> tree;
 	std::vector<Edge> edge = graph.edges;
 
-	// Allocate memory for creating V subsets.
 	std::vector<Component> components(V);
 
 	// An array to store index of the cheapest edge of
@@ -22,9 +20,7 @@ std::vector<Edge> boruvkaMST(Graph &graph) {
 		components[v].rank = 0;
 	}
 
-	// Initially there are V different trees.
-	// Finally there will be one tree that will be MST
-	int numTrees = V;
+	int numTrees = V; // Initially there are V different trees.
 	int MSTweight = 0;
 
 	// Keep combining components (or sets) until all
@@ -428,9 +424,9 @@ Neighbors::Neighbors(SubsetData subset, BATSet entropy_workset) {
 
 Neighbors::Neighbors(std::string const &fname, BATSet entropy_workset) {
 	this->entropy_workset = entropy_workset;
-//	setHasBonds(false);
-//	setHasAngles(false);
-//	setHasTorsions(false);
+ 	setHasBonds(false);
+	setHasAngles(false);
+	setHasTorsions(false);
 	std::string str_bond("bond");
 	std::string str_angle("angle");
 	std::string str_torsion("torsion");
@@ -750,42 +746,39 @@ void Neighbors::setHasBdcross(bool hasBdcross) {
 std::ostream& operator<<(std::ostream &os, Neighbors &neig) {
 
 	if (neig.getHasBonds()) {
-		std::map<u_int, std::vector<u_int>>::const_iterator it;
-//      for (it = neig.getBonds().begin(); it != neig.getBonds().end(); ++it) {
-//         std::vector<u_int> nei_v = it->second;
-//         os << "bond " << it->first << " " << nei_v.size();
-//         std::vector<u_int>::iterator it_v;
-//         for (it_v = nei_v.begin(); it_v != nei_v.end(); ++it_v) {
-//            os << " " << *it_v;
-//         }
-//         os << ";" << std::endl;
-//      }
+		// for (const auto& pair : neig.getBonds()) {
+		// 	os << "bond " << pair.first << " " << pair.second.size();
+		// 	for ( auto& vv :  pair.second) {
+		// 	os << " " << vv;
+		// 	}
+		// 	os << ";" << std::endl;
+		// }
 	}
 
 	if (neig.getHasAngles()) {
 		std::map<u_int, std::vector<u_int>>::const_iterator it;
-//      for (it = neig.getAngles().begin(); it != neig.getAngles().end(); ++it) {
-//         std::vector<u_int> nei_v = it->second;
-//         os << "angle " << it->first << " " << nei_v.size();
-//         std::vector<u_int>::iterator it_v;
-//         for (it_v = nei_v.begin(); it_v != nei_v.end(); ++it_v) {
-//            os << " " << *it_v;
-//         }
-//         os << ";" << std::endl;
-//      }
+    //  for (auto it = neig.getAngles().begin(); it != neig.getAngles().end(); ++it) {
+    //     auto nei_v = (*it).second;
+    //     os << "angle " << (*it).first << " " << nei_v.size();
+    //     std::vector<u_int>::iterator it_v;
+    //     for (it_v = nei_v.begin(); it_v != nei_v.end(); ++it_v) {
+    //        os << " " << *it_v;
+    //     }
+    //     os << ";" << std::endl;
+    //  }
 	}
 
 	if (neig.getHasTorsions()) {
 		std::map<u_int, std::vector<u_int>>::const_iterator it;
-//      for (it = neig.getAngles().begin(); it != neig.getAngles().end(); ++it) {
-//         std::vector<u_int> nei_v = it->second;
-//         os << "torsion " << it->first << " " << nei_v.size();
-//         std::vector<u_int>::iterator it_v;
-//         for (it_v = nei_v.begin(); it_v != nei_v.end(); ++it_v) {
-//            os << " " << *it_v;
-//         }
-//         os << ";" << std::endl;
-//      }
+    //  for (auto it = neig.getTorsions().begin(); it != neig.getTorsions().end(); ++it) {
+    //     std::vector<u_int> nei_v = (*it).second;
+    //     os << "torsion " << (*it).first << " " << nei_v.size();
+    //     std::vector<u_int>::iterator it_v;
+    //     for (it_v = nei_v.begin(); it_v != nei_v.end(); ++it_v) {
+    //        os << " " << *it_v;
+    //     }
+    //     os << ";" << std::endl;
+    //  }
 	}
 	return os;
 }

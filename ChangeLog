@@ -1,4 +1,8 @@
-
+30 Jun 2020 19:00
+-- Updated Timer.h to work on Linux as well macOS
+-- Updated autotool files to enable build on macOS also
+-- Added compiler support for clang++ (tested on macOS Catalina)
+-- Updated code to enable build in debug mode treating warnings as errors
 
 19 Dec 2018 18:00
 -- changed NeighbourDOFs to read DFFs having neighbors only, earlier all DOFs were being reads
@@ -6,4 +10,4 @@
    data caching for rows now guided using neighbor-keys of the first DOF type in pair,
    earlier number of effective n_bnd_eff were used and causing bug.
 29 Aug 2017 19:55
---included -i option for input.cfg and -O for overwritting files in outfilepath
+-- included -i option for input.cfg and -O for overwritting files in outfilepath

@@ -9,10 +9,11 @@
 #define INC_CENTRE_CONFIG_H
 
 #ifndef LOG_LEVEL
-#define LOG_LEVEL   INFO_LEVEL
+#define LOG_LEVEL   ERROR_LEVEL
 #endif
 
 #include "../config.h"
+#include <chrono>
 
 //#ifndef USE_OMPMPI
 //#define USE_OMPMPI
@@ -24,6 +25,18 @@ using hbin_t = unsigned char;
 using data_t = float;
 using ull_int = unsigned long long;
 using u_int = unsigned int;
+
+
+#ifdef OS_IS_OSX
+using Clock = std::chrono::system_clock;
+using ClockResolution = std::chrono::microseconds;
+#endif
+
+#ifdef OS_IS_LINUX
+using Clock = std::chrono::system_clock;
+using ClockResolution = std::chrono::nanoseconds;
+#endif
+
 
 enum TensorType {
 	FULL = 0, LOWER = 1, UPPER = 3
