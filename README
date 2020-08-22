@@ -9,9 +9,9 @@ entropy from MD simulation data using Information Theoretic methods:
 
 This program accepts BOND/ANGLE/TORSION (BAT) format trajectory of the system 
 for which the entropy is to be computed. An auxilary program cart2bat shipped 
-with pyceneter python package can be used to generate a BAT format file from 
-topology and trajectory files generated using popular Molecular Dynamics 
-programs e.g. AMBER, NAMD, CHARMM, ACEMD, GROMACS.
+with pycentre (https://github.com/shaileshp51/pycentre) python package can be used to 
+generate a BAT format file from topology and trajectory files generated using popular 
+Molecular Dynamics programs e.g. AMBER, NAMD, CHARMM, ACEMD, GROMACS.
 
 
 DEPENDENCIES
