@@ -30,12 +30,15 @@ and build following instructions provided on
 
 INSTALL
 =======
+
 Extract the distribution tar file using
 
 tar -xvf centre-0.1.0.tar.bz
 change directory to the extracted directory centre-0.1.0
 cd centre-0.1.0
 
+On LINUX
+--------
 Do an OpenMP thread based parallel build
 
 ./configure --prefix=`pwd`
@@ -55,6 +58,27 @@ make install
 This step will create a file centre_OMPMPI in bin folder, check with 
 ls bin/centre_OMPMPI
 
+On macOS
+--------
+On macOS using clang++ compiler
+Do an OpenMP thread based parallel build
+./configure --prefix=`pwd` CXX="clang++"
+
+make install LDFLAGS=-lomp
+
+This step will create a file centre_OMP in bin folder, check with 
+
+ls bin/centre_OMP
+
+Do an MPI based proecess+thread based hybrid parallel build.
+This build requires mpi headers and mpic++ processor capable to compile c++11 
+code
+
+./configure --enable-mpi --prefix=`pwd`
+make install LDFLAGS=-lomp
+
+This step will create a file centre_OMPMPI in bin folder, check with 
+ls bin/centre_OMPMPI
 USAGE
 =====
 USAGE: 
