@@ -1,16 +1,16 @@
- TaskSet     State          Started On    AvgTimeTask    ElapsedTime   DoneTasks  TotalTasks Done[%] ExpcTimeLeft
-Discrete Completed 2020-05-06 12:31:32         0.000s         0.029s          93           0     inf           0s
-     BND Completed 2020-05-06 12:31:32         0.000s         0.007s          32           0     inf           0s
-     ANG Completed 2020-05-06 12:31:32         0.000s         0.005s          31           0     inf           0s
-     DIH Completed 2020-05-06 12:31:32         0.000s         0.012s          30           0     inf           0s
- Entropy Completed 2020-05-06 12:31:32         0.000s         0.679s        2608        2608  100.00           0s
-  BND-1D Completed 2020-05-06 12:31:32         0.000s         0.003s          23          23  100.00           0s
-  ANG-1D Completed 2020-05-06 12:31:32         0.000s         0.003s          22          22  100.00           0s
-  DIH-1D Completed 2020-05-06 12:31:32         0.000s         0.004s          30          30  100.00           0s
-  B/B-2D Completed 2020-05-06 12:31:32         0.000s         0.079s         212         212  100.00           0s
-  A/A-2D Completed 2020-05-06 12:31:32         0.000s         0.080s         215         215  100.00           0s
-  D/D-2D Completed 2020-05-06 12:31:32         0.000s         0.101s         409         409  100.00           0s
-  B/A-2D Completed 2020-05-06 12:31:32         0.000s         0.114s         454         454  100.00           0s
-  B/D-2D Completed 2020-05-06 12:31:32         0.000s         0.145s         625         625  100.00           0s
-  A/D-2D Completed 2020-05-06 12:31:32         0.000s         0.140s         618         618  100.00           0s
+ TaskSet     State          Started On       ReadTime    ExecuteTime     I.P.C.Time      WriteTime    AvgTimeTask    ElapsedTime   DoneTasks  TotalTasks Done[%] ExpcTimeLeft
+Discrete   Running 2020-09-29 14:24:17         0.048s         0.015s         0.003s         0.036s         0.002s         0.187s          93          93  100.00           0s
+     BND Completed 2020-09-29 14:24:17         0.016s         0.003s         0.001s         0.012s         0.002s         0.064s          32          32  100.00           0s
+     ANG Completed 2020-09-29 14:24:18         0.016s         0.003s         0.000s         0.012s         0.001s         0.060s          31          31  100.00           0s
+     DIH Completed 2020-09-29 14:24:18         0.015s         0.008s         0.000s         0.011s         0.002s         0.062s          30          30  100.00           0s
+ Entropy Completed 2020-09-29 14:24:18         0.196s         0.314s         0.018s         0.171s         0.000s         1.182s        2608        2608  100.00           0s
+  BND-1D Completed 2020-09-29 14:24:18         0.005s         0.002s         0.000s         0.003s         0.000s         0.015s          23          23  100.00           0s
+  ANG-1D Completed 2020-09-29 14:24:18         0.005s         0.001s         0.000s         0.003s         0.000s         0.014s          22          22  100.00           0s
+  DIH-1D Completed 2020-09-29 14:24:18         0.007s         0.001s         0.000s         0.003s         0.000s         0.016s          30          30  100.00           0s
+  B/B-2D Completed 2020-09-29 14:24:18         0.018s         0.027s         0.010s         0.020s         0.000s         0.124s         212         212  100.00           0s
+  A/A-2D Completed 2020-09-29 14:24:18         0.017s         0.032s         0.002s         0.018s         0.000s         0.118s         215         215  100.00           0s
+  D/D-2D Completed 2020-09-29 14:24:18         0.030s         0.054s         0.001s         0.022s         0.000s         0.185s         409         409  100.00           0s
+  B/A-2D Completed 2020-09-29 14:24:18         0.030s         0.053s         0.000s         0.032s         0.000s         0.201s         454         454  100.00           0s
+  B/D-2D Completed 2020-09-29 14:24:18         0.039s         0.071s         0.001s         0.033s         0.000s         0.250s         625         625  100.00           0s
+  A/D-2D Completed 2020-09-29 14:24:19         0.041s         0.070s         0.001s         0.033s         0.000s         0.249s         618         618  100.00           0s
 

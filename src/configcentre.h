@@ -19,7 +19,7 @@
 //#define USE_OMPMPI
 //#endif
 
-#define DELTA_X_RANGE_EXTEND 5.0e-8
+#define DELTA_X_RANGE_EXTEND 5.0e-9
 
 using hbin_t = unsigned char;
 using data_t = float;

@@ -1,0 +1,12 @@
+Convergance.o: Convergance.cpp /usr/local/include/omp.h Convergence.h \
+ configcentre.h ../config.h Centre.h
+
+/usr/local/include/omp.h:
+
+Convergence.h:
+
+configcentre.h:
+
+../config.h:
+
+Centre.h:

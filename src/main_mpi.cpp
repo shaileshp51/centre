@@ -39,7 +39,8 @@ int main(int argc, char **argv) {
 	//int tmpInt;
 	int thread_level_provided, thread_level_claimed;
 
-	MPI_Init_thread(&argc, &argv, MPI_THREAD_FUNNELED, &thread_level_provided);
+	MPI_Init_thread(&argc, &argv , MPI_THREAD_SINGLE, &thread_level_provided);
+	// MPI_Init(&argc, &argv); // , MPI_THREAD_SERIALIZED, &thread_level_provided
 	MPI_Query_thread(&thread_level_claimed);
 	if (thread_level_claimed != thread_level_provided) {
 		mprinterr(
@@ -47,6 +48,7 @@ int main(int argc, char **argv) {
 				thread_level_claimed, thread_level_provided);
 		MPI_Abort(MPI_COMM_WORLD, rc);
 	}
+	
 	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 	MPI_Comm_size(MPI_COMM_WORLD, &numprocs);
 	MPI_Get_processor_name(hostName, &namelen);

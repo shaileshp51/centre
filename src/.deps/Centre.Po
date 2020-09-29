@@ -1,0 +1,7 @@
+Centre.o: Centre.cpp Centre.h configcentre.h ../config.h
+
+Centre.h:
+
+configcentre.h:
+
+../config.h:

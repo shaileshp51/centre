@@ -1,0 +1,1 @@
+CentreStdio.o: CentreStdio.cpp

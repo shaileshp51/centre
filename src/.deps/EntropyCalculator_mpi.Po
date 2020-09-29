@@ -1,0 +1,60 @@
+EntropyCalculator_mpi.o: EntropyCalculator_mpi.cpp EntropyCalculator.h \
+ configcentre.h ../config.h main_common.h /usr/local/include/omp.h \
+ Timer.h Centre.h NetcdfFile.h /usr/local/include/netcdf.h \
+ CoordinateInfo.h Netcdf_HistUtils.h CentreStdio.h Constants.h Version.h \
+ Netcdf_BAT.h Netcdf_TrjInt.h Netcdf_EntContri.h Inputs.h Real2Int.h \
+ Utils.h Estimators.h Convergence.h /usr/local/include/mpi.h \
+ /usr/local/include/mpi_portable_platform.h MpiCommTags.h \
+ macrologger/macrologger.h
+
+EntropyCalculator.h:
+
+configcentre.h:
+
+../config.h:
+
+main_common.h:
+
+/usr/local/include/omp.h:
+
+Timer.h:
+
+Centre.h:
+
+NetcdfFile.h:
+
+/usr/local/include/netcdf.h:
+
+CoordinateInfo.h:
+
+Netcdf_HistUtils.h:
+
+CentreStdio.h:
+
+Constants.h:
+
+Version.h:
+
+Netcdf_BAT.h:
+
+Netcdf_TrjInt.h:
+
+Netcdf_EntContri.h:
+
+Inputs.h:
+
+Real2Int.h:
+
+Utils.h:
+
+Estimators.h:
+
+Convergence.h:
+
+/usr/local/include/mpi.h:
+
+/usr/local/include/mpi_portable_platform.h:
+
+MpiCommTags.h:
+
+macrologger/macrologger.h:

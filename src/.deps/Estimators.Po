@@ -1,0 +1,12 @@
+Estimators.o: Estimators.cpp /usr/local/include/omp.h Centre.h \
+ configcentre.h ../config.h Estimators.h
+
+/usr/local/include/omp.h:
+
+Centre.h:
+
+configcentre.h:
+
+../config.h:
+
+Estimators.h:

@@ -543,11 +543,7 @@ int Netcdf_TrjInt::NC_create(std::string const &filename,
 		std::string const &title) {
 	if (filename.empty())
 		return 1;
-	// int dimensionID[NC_MAX_VAR_DIMS];
-
-	//nc_type dataType;
-	//NCTYPE type = NCTYPE::NC_CENTREHIST;
-
+	
 	// NC_64BIT_DATA NC_NETCDF4
 	if (checkNCerr(
 			nc_create(filename.c_str(), NC_NOCLOBBER | NC_64BIT_DATA, &ncid_)))

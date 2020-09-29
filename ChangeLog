@@ -1,3 +1,9 @@
+29 Sep 2020 12:35
+-- Updated sample file parameter descriptions
+-- Update data-caching code for columns in case of 2D mutual information for MPI
+   version of code for I/O efficiency.
+-- Changed epsilon value used to extend the distribution range of DOFs
+   fluctuation from 5.0e-8 to 5.0e-9 in configcentre.h
 30 Jun 2020 19:00
 -- Updated Timer.h to work on Linux as well macOS
 -- Updated autotool files to enable build on macOS also
@@ -5,9 +11,10 @@
 -- Updated code to enable build in debug mode treating warnings as errors
 
 19 Dec 2018 18:00
--- changed NeighbourDOFs to read DFFs having neighbors only, earlier all DOFs were being reads
+-- changed NeighbourDOFs to read DFFs having neighbors only, earlier all DOFs
+   were being reads
 -- In B/B, B/A, B/D, A/A, A/D
-   data caching for rows now guided using neighbor-keys of the first DOF type in pair,
-   earlier number of effective n_bnd_eff were used and causing bug.
+   data caching for rows now guided using neighbor-keys of the first DOF type in
+   pair, earlier number of effective n_bnd_eff were used and causing bug.
 29 Aug 2017 19:55
--- included -i option for input.cfg and -O for overwritting files in outfilepath
+-- included -i option for input.cfg and -O for overwriting files in outfilepath

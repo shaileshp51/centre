@@ -84,7 +84,7 @@ if test x"$debugmode" = x"yes"; then
     AM_CXXFLAGS="$AM_CXXFLAGS -g -Wall -Werror -Wno-uninitialized -O0"
 else
     AC_DEFINE([NDEBUG],[],[No-debug Mode])
-    AM_CXXFLAGS="$AM_CXXFLAGS -O3"
+    AM_CXXFLAGS="$AM_CXXFLAGS -Ofast"
 fi
 
 ##########################################################################

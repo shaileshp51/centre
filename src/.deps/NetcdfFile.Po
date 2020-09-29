@@ -1,0 +1,16 @@
+NetcdfFile.o: NetcdfFile.cpp NetcdfFile.h /usr/local/include/netcdf.h \
+ CoordinateInfo.h Constants.h Exceptions.h CentreIException.h Version.h
+
+NetcdfFile.h:
+
+/usr/local/include/netcdf.h:
+
+CoordinateInfo.h:
+
+Constants.h:
+
+Exceptions.h:
+
+CentreIException.h:
+
+Version.h:

@@ -1,0 +1,19 @@
+Netcdf_BAT.o: Netcdf_BAT.cpp Netcdf_BAT.h NetcdfFile.h \
+ /usr/local/include/netcdf.h CoordinateInfo.h configcentre.h ../config.h \
+ CentreStdio.h Version.h
+
+Netcdf_BAT.h:
+
+NetcdfFile.h:
+
+/usr/local/include/netcdf.h:
+
+CoordinateInfo.h:
+
+configcentre.h:
+
+../config.h:
+
+CentreStdio.h:
+
+Version.h:

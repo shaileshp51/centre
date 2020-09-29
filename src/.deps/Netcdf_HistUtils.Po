@@ -1,0 +1,21 @@
+Netcdf_HistUtils.o: Netcdf_HistUtils.cpp Netcdf_HistUtils.h \
+ /usr/local/include/netcdf.h configcentre.h ../config.h NetcdfFile.h \
+ CoordinateInfo.h CentreStdio.h Constants.h Version.h
+
+Netcdf_HistUtils.h:
+
+/usr/local/include/netcdf.h:
+
+configcentre.h:
+
+../config.h:
+
+NetcdfFile.h:
+
+CoordinateInfo.h:
+
+CentreStdio.h:
+
+Constants.h:
+
+Version.h:

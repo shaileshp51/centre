@@ -1,0 +1,21 @@
+Netcdf_EntContri.o: Netcdf_EntContri.cpp Netcdf_EntContri.h \
+ /usr/local/include/netcdf.h configcentre.h ../config.h NetcdfFile.h \
+ CoordinateInfo.h CentreStdio.h Constants.h Version.h
+
+Netcdf_EntContri.h:
+
+/usr/local/include/netcdf.h:
+
+configcentre.h:
+
+../config.h:
+
+NetcdfFile.h:
+
+CoordinateInfo.h:
+
+CentreStdio.h:
+
+Constants.h:
+
+Version.h:
