@@ -246,7 +246,7 @@ am__DIST_COMMON = $(srcdir)/Makefile.in \
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 ACLOCAL = ${SHELL} /Users/delphicpp/git-repos-spanday/centre/build-aux/missing aclocal-1.16
 AMTAR = $${TAR-tar}
-AM_CXXFLAGS =   -I/usr/local/include -Ofast -fmessage-length=0 -fopenmp -MMD -fPIC 
+AM_CXXFLAGS =   -I/usr/local/include -Ofast -fmessage-length=0  -fPIC 
 AM_DEFAULT_VERBOSITY = 1
 AM_LDFLAGS =  -L/usr/local/lib
 AUTOCONF = ${SHELL} /Users/delphicpp/git-repos-spanday/centre/build-aux/missing autoconf
@@ -257,7 +257,7 @@ CPPFLAGS =
 CXX = mpic++ -std=gnu++11
 CXXCPP = mpic++ -std=gnu++11 -E
 CXXDEPMODE = depmode=gcc3
-CXXFLAGS =  -I/usr/local/include -Ofast -fmessage-length=0 -fopenmp -MMD -fPIC 
+CXXFLAGS =  -I/usr/local/include -Ofast -fmessage-length=0  -fPIC 
 CYGPATH_W = echo
 DEFS = -DHAVE_CONFIG_H
 DEPDIR = .deps

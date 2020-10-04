@@ -82,10 +82,15 @@ int main(int argc, char **argv) {
 		cerr << "-i inputfile is a required option" << endl;
 		exit(0);
 	}
+	#pragma omp parallel
+        #pragma omp master
+        {
+           n_thread_perproc = omp_get_num_threads();
+        }
 	MPI_Barrier(MPI_COMM_WORLD);
-	cout << endl << endl;
+	cout << endl;
 	cout << "MPI PROCESS: rank[" << rank << "], NodeName: " << hostName
-			<< ", UsedThreadsOfHost: " << omp_get_max_threads() << ", TotalThreadsOnHost: "
+			<< ", UsedThreadsOfHost: " << n_thread_perproc << ", TotalThreadsOnHost: "
 			<< omp_get_num_procs() << endl;
 	MPI_Barrier(MPI_COMM_WORLD);
 
@@ -96,14 +101,16 @@ int main(int argc, char **argv) {
 				"Initiated process = %i of %i MPI processes on machine=%s, thread number %i\n",
 				rank, numprocs, hostName, ID);
 	}
+
 	MPI_Barrier(MPI_COMM_WORLD);
+	
 	if (rank == MASTER_PROC) {
 		if (!inp.isGood()) {
 			// Input read error, abort program
-			exit(0);
+			MPI_Abort(MPI_COMM_WORLD, 0);
 		} else {
 			total_time.start();
-
+			
 			printHeader();
 			cout << inp << endl;
 			cout << endl << "Master pid: " << getpid() << " ppid: " << getppid()
@@ -134,7 +141,7 @@ int main(int argc, char **argv) {
 						if (remove(unwntfile.c_str())) {
 							cerr << "Error removing file (" << unwntfile << ") "
 									<< endl;
-							exit(0);
+							MPI_Abort(MPI_COMM_WORLD, 0);
 						} else {
 							cout << "deleted: " << unwntfile.c_str() << endl;
 						}
@@ -146,7 +153,7 @@ int main(int argc, char **argv) {
 				cerr
 						<< "To force overwriting existing files use -O option with program"
 						<< endl;
-				exit(0);
+				MPI_Abort(MPI_COMM_WORLD, 0);
 			}
 		}
 	}
@@ -164,7 +171,7 @@ int main(int argc, char **argv) {
 	for (auto v : inp.getBats().getNframes()) {
 		tmp_frm += v;
 	}
-	ull_int nfrm4rl2int = tmp_frm; // inp.getEntropy().getNumframe();
+	ull_int nfrm4rl2int = tmp_frm; 
 	const u_int n_bonds = inp.getBats().getNbond();
 	const u_int n_angles = inp.getBats().getNangle();
 	const u_int n_diheds = inp.getBats().getNdihed();

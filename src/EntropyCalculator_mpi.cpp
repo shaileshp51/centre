@@ -147,12 +147,13 @@ void EntropyCalculator::run1d_mpi(BAT_t bat_type, const int rank,
 				max_slave_rank = ceil(
 					(double)block_tasks / (n_thread_perproc * curr_cache_per_cpu));
 			}
+			int curr_cache_per_proc = n_thread_perproc * curr_cache_per_cpu;
 			int bl_details[4];
 			bl_details[0] = bl_strat_id;
 			bl_details[1] = block_tasks;
-			bl_details[2] = curr_cache_per_cpu;
+			bl_details[2] = curr_cache_per_proc;
 			bl_details[3] = max_slave_rank;
-			int curr_cache_per_proc = n_thread_perproc * curr_cache_per_cpu;
+			
 
 			auto _startcommb = Clock::now();
 			MPI_Bcast(&bl_details, 4, MPI_INT, MASTER_PROC, MPI_COMM_WORLD);
@@ -197,7 +198,6 @@ void EntropyCalculator::run1d_mpi(BAT_t bat_type, const int rank,
 				 * Read descretized data needed from file for a slave process
 				 */
 				auto _startr = Clock::now();
-#pragma omp master
 				for (int idx = 0; idx < curr_cache_per_proc; ++idx)
 				{
 					const u_int dim_id = inputs.getSubset().getBATTypeId(
@@ -282,7 +282,6 @@ void EntropyCalculator::run1d_mpi(BAT_t bat_type, const int rank,
 				 * Reading data from file for master process itself.
 				 */
 				auto _startr = Clock::now();
-#pragma omp master
 				for (int idx = 0; idx < n_task4master; ++idx)
 				{
 					const u_int dim_id = inputs.getSubset().getBATTypeId(
@@ -617,7 +616,7 @@ void EntropyCalculator::run1d_mpi(BAT_t bat_type, const int rank,
 				n_reads_curr_block += curr_cache_per_proc;
 			}
 			/*
-			 * RECEIVINGG SCATTERED DATA COMPLETED, WAIT TILL ALL(MASTER AND SLAVES) THE MPI PROCESSES
+			 * RECEIVING SCATTERED DATA COMPLETED, WAIT TILL ALL(MASTER AND SLAVES) THE MPI PROCESSES
 			 * HIT THIS POINT.
 			 */
 			MPI_Barrier(MPI_COMM_WORLD);
@@ -653,7 +652,6 @@ void EntropyCalculator::run1d_mpi(BAT_t bat_type, const int rank,
 			 */
 			if (rank < max_slave_rank)
 			{
-				// auto _startcomm = Clock::now();
 				for (int idx = 0; idx < curr_cache_per_proc; ++idx)
 				{
 					MPI_Send(bin_mids_v[idx].data(), bin_schemes_sum,
@@ -809,19 +807,16 @@ void EntropyCalculator::run2d_xx_mpi(BATSet dim_type, const int rank,
 
 		ull_int nfrm_eff_entropy = 0;
 		/*********************** MASTER PROCESS *******************
-		 * 2-D ENTROPY estimation for: BOND/BOND
+		 * 2-D ENTROPY estimation for: X/X X in {B, A, Ts}
 		 *********************************************************/
 
 		ptr_ent_xx2d->NC_create(str_dim_type + " 2-D Entropy contributions");
 
 		vector<u_int> block_boundry(5);
-		//int block_count = 0, block_tasks = 0;
-		//bool block_ready = false;
-
+		
 		const u_int num_dim_neigh_keys = dim_neigh_keys.size();
 
 		int chache_dims_per_proc = cache_entc_dims_per_cpu * n_thread_perproc / 2;
-		//int n_cpus = numprocs * n_thread_perproc;
 		int chached_dims = chache_dims_per_proc * numprocs;
 
 		MPI_Barrier(MPI_COMM_WORLD);
@@ -1539,14 +1534,10 @@ void EntropyCalculator::run2d_xx_mpi(BATSet dim_type, const int rank,
 		vector<ull_int> dim_lens(2, n_dim_eff);
 		//ull_int nfrm_eff_entropy = 0;
 		/*********************** MASTER PROCESS *******************
-		 * 2-D ENTROPY estimation for: BOND/ANGLE
+		 * 2-D ENTROPY estimation for: X/Y: X,Y in {B, A, T}
 		 *********************************************************/
 		int chache_dims_per_proc = cache_entc_dims_per_cpu * n_thread_perproc / 2;
-		// int n_cpus = numprocs * n_thread_perproc;
 		int chached_dims = chache_dims_per_proc * numprocs;
-
-		// int block_tasks = 0; //, block_count = 0
-		// bool block_ready = false;
 
 		const u_int num_dimTypeKeys = dimTypeKeys.size();
 
@@ -1556,11 +1547,6 @@ void EntropyCalculator::run2d_xx_mpi(BATSet dim_type, const int rank,
 		{
 			const int bl_rows =
 				(bi + chache_dims_per_proc <= num_dimTypeKeys) ? chache_dims_per_proc : (num_dimTypeKeys - bi);
-
-			//int row_cache_info[2];
-			//row_cache_info[0] = bi;
-			//row_cache_info[1] = bl_rows;
-
 			LOG_DEBUG("Rank[%d]>> Bcast row-cache-info [bl_start=%d, bl_rows=%d] for %s",
 					  rank, bi, bl_rows, str_dim_type.c_str());
 
