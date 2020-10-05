@@ -64,7 +64,7 @@ On macOS using clang++ compiler
 Do an OpenMP thread based parallel build
 ./configure --prefix=`pwd` CXX="clang++"
 
-make install LDFLAGS=-lomp
+make install LIBS=-lomp
 
 This step will create a file centre_OMP in bin folder, check with 
 
@@ -74,8 +74,9 @@ Do an MPI based proecess+thread based hybrid parallel build.
 This build requires mpi headers and mpic++ processor capable to compile c++11 
 code
 
+export OMPI_CXX=clang++
 ./configure --enable-mpi --prefix=`pwd`
-make install LDFLAGS=-lomp
+make install LIBS=-lomp
 
 This step will create a file centre_OMPMPI in bin folder, check with 
 ls bin/centre_OMPMPI
