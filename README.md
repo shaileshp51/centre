@@ -80,6 +80,7 @@ make install LIBS=-lomp
 
 This step will create a file centre_OMPMPI in bin folder, check with 
 ls bin/centre_OMPMPI
+
 USAGE
 =====
 USAGE: 
