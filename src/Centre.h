@@ -29,7 +29,7 @@
 
  This enum type defines types of Coordinate Systems.
  */
-enum CoordSys {
+enum CoordSys : u_int8_t {
 	CARTESIAN = 0, /*!< The Coordinate System in Use is Cartesian */
 	BAT = 1 /*!< The Coordinate System in Use is Bond/Angle/Torsion (BAT) */
 };
@@ -39,7 +39,7 @@ enum CoordSys {
 
  This enum type defines types of Degrees-of-freedom in BAT Coordinate Systems.
  */
-enum BAT_t {
+enum BAT_t : u_int8_t {
 	NONE = 0, /*!< The BAT Type is unknown */
 	BOND = 1, /*!< The BAT Type is Bond */
 	ANGLE = 2, /*!< The BAT Type is Angle */
@@ -51,7 +51,7 @@ enum BAT_t {
 
  This enum type describes dataset to be used for entropy estimation.
  */
-enum Entropy4Data {
+enum Entropy4Data : u_int8_t {
 	ALL = 0, /*!< ALL: Entire data avaliable in input data files will be used for entropy analysis */
 	SUBSET = 1 /*!< SUBSET: A subset of entire data avaliable in input data files will be used for entropy analysis */
 };
@@ -61,7 +61,7 @@ enum Entropy4Data {
 
  This enum type describes methods for PDF estimation from input data.
  */
-enum PDFMethod {
+enum PDFMethod : u_int8_t {
 	HISTOGRAM = 0, /*!< Histogram method is used */
 	vonMisesKDE = 1 /*!< vonMises KDE state is used */
 };
@@ -73,7 +73,7 @@ enum PDFMethod {
 
  This enum lists all the methods for entropy, However, only MIE/AMIE/MIST implemented.
  */
-enum EntropyMethods {
+enum EntropyMethods : u_int8_t {
 	QH = 0, /*!< Quasi harmonic */
 	MIE = 1, /*!< Mutual Information Expansion */
 	AMIE = 2, /*!< Approximate MIE */
@@ -86,14 +86,14 @@ enum EntropyMethods {
 
  This enum type defines entropy estimators implemented.
  */
-enum EntropyEstimators {
+enum EntropyEstimators : u_int8_t {
 	ML = 0, /*!< ML: Maximum Likelihood Estimator */
 	MM = 1, /*!< MM: Miller Madow Estimator */
 	CS = 2, /*!< CS: Chao Shen */
 	JS = 3 /*!< JS: James and Stein Shrinkage Estimator */
 };
 
-enum BATSet {
+enum BATSet : u_int16_t {
 	NOTHING = 0, /*!< None */
 	B1D = 1, /*!< Bonds 1D */
 	A1D = 2, /*!< Angles 1D */

@@ -86,7 +86,7 @@ void getMaxMI2D(const SubsetData &subset, const Neighbors &neigh,
 void getMaxMI2D(const std::map<u_int, u_int> &id2index_1d1,
 		const std::map<u_int, u_int> &id2index_1d2,
 		const std::vector<double> &S1, const std::vector<double> &S2,
-		std::map<u_int, std::pair<u_int, u_int>> &index2id_2d,
+		const std::vector<u_int> &index2id_2d,
 		const std::vector<double> &dataIn, std::vector<double> &dataMI);
 
 /*!

@@ -28,6 +28,7 @@ std::vector<Edge> boruvkaMST(Graph &graph) {
 	while (numTrees > 1) {
 		// Traverse through all edges and update
 		// cheapest of every component
+		int iterations_num_cheapest = 0;
 		for (int i = 0; i < E; i++) {
 			// Find components (or sets) of two corners
 			// of current edge
@@ -40,15 +41,48 @@ std::vector<Edge> boruvkaMST(Graph &graph) {
 				// Else check if current edge is closer to previous
 				// cheapest edges of set1 and set2
 				if (cheapest[set1] == -1
-						|| edge[cheapest[set1]].weight < edge[i].weight)
+						|| edge[cheapest[set1]].weight < edge[i].weight) {
 					cheapest[set1] = i;
+                    iterations_num_cheapest++;
+                }
 
 				if (cheapest[set2] == -1
-						|| edge[cheapest[set2]].weight < edge[i].weight)
+						|| edge[cheapest[set2]].weight < edge[i].weight) {
 					cheapest[set2] = i;
+                    iterations_num_cheapest++;
+                }
 			}
 		}
+        // The next largets edges-weight equals one already added.
+        // Lets break the deadlock by allowing addition of an equal weight edge.
+		if (iterations_num_cheapest == 0) {
+			for (int i = 0; i < E; i++) {
+				// Find components (or sets) of two corners
+				// of current edge
+				int set1 = findRoot(components, edge[i].source);
+				int set2 = findRoot(components, edge[i].dest);
+				// Consider an edge only when two ends belog to different components.
+				if (set1 != set2) {
+					// Else check if current edge is closer to previous
+					// cheapest edges of set1 and set2
+					if (cheapest[set1] == -1
+							|| edge[cheapest[set1]].weight <= edge[i].weight) {
+						cheapest[set1] = i;
+						iterations_num_cheapest++;
+						break;
+					}
 
+					if (cheapest[set2] == -1
+							|| edge[cheapest[set2]].weight <= edge[i].weight) {
+						cheapest[set2] = i;
+						iterations_num_cheapest++;
+						break;
+					}
+				}
+			}
+		}
+		if(iterations_num_cheapest==0)
+			return tree;
 		// Consider the above picked cheapest edges and add them
 		// to MST
 		for (int i = 0; i < V; i++) {

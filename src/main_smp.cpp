@@ -45,6 +45,13 @@ int main(int argc, char **argv) {
 				exit(0);
 
 		}
+		if (cmdOptionExists(argv, argv + argc, "-c")
+				|| cmdOptionExists(argv, argv + argc, "--cite")) {
+
+				printFooter();
+				exit(0);
+
+		}
 		if (cmdOptionExists(argv, argv + argc, "-O")) {
 			overwritefiles = true;
 		}

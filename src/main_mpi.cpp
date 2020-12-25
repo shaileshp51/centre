@@ -69,6 +69,13 @@ int main(int argc, char **argv) {
 				MPI_Abort(MPI_COMM_WORLD, rc);
 			}
 		}
+		if (cmdOptionExists(argv, argv + argc, "-c")
+				|| cmdOptionExists(argv, argv + argc, "--cite")) {
+			if (rank == MASTER_PROC) {
+				printFooter();
+				MPI_Abort(MPI_COMM_WORLD, rc);
+			}
+		}
 		if (cmdOptionExists(argv, argv + argc, "-O")) {
 			overwritefiles = true;
 		}

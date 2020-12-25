@@ -86,10 +86,10 @@ POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
-build_triplet = x86_64-apple-darwin19.6.0
-host_triplet = x86_64-apple-darwin19.6.0
-#bin_PROGRAMS = centre_OMP$(EXEEXT)
-bin_PROGRAMS = centre_OMPMPI$(EXEEXT)
+build_triplet = x86_64-pc-linux-gnu
+host_triplet = x86_64-pc-linux-gnu
+bin_PROGRAMS = centre_OMP$(EXEEXT)
+#bin_PROGRAMS = centre_OMPMPI$(EXEEXT)
 subdir = src
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/m4_ax_cxx_compile_stdcxx.m4 \
@@ -116,18 +116,18 @@ am__centre_OMP_SOURCES_DIST = Centre.cpp macrologger/macrologger.h \
 	CentreIException.cpp Exceptions.h EntropyCalculator.cpp \
 	EntropyScorer.cpp Netcdf_EntContri.cpp Netcdf_HistUtils.cpp \
 	Real2Int.cpp Utils.cpp main_common.cpp main_smp.cpp
-#am_centre_OMP_OBJECTS = Centre.$(OBJEXT) \
-#	Netcdf_BAT.$(OBJEXT) NetcdfFile.$(OBJEXT) \
-#	Netcdf_TrjInt.$(OBJEXT) Estimators.$(OBJEXT) \
-#	Inputs.$(OBJEXT) CentreStdio.$(OBJEXT) \
-#	Convergance.$(OBJEXT) Discretizer.$(OBJEXT) \
-#	CentreIException.$(OBJEXT) \
-#	EntropyCalculator.$(OBJEXT) \
-#	EntropyScorer.$(OBJEXT) \
-#	Netcdf_EntContri.$(OBJEXT) \
-#	Netcdf_HistUtils.$(OBJEXT) \
-#	Real2Int.$(OBJEXT) Utils.$(OBJEXT) \
-#	main_common.$(OBJEXT) main_smp.$(OBJEXT)
+am_centre_OMP_OBJECTS = Centre.$(OBJEXT) \
+	Netcdf_BAT.$(OBJEXT) NetcdfFile.$(OBJEXT) \
+	Netcdf_TrjInt.$(OBJEXT) Estimators.$(OBJEXT) \
+	Inputs.$(OBJEXT) CentreStdio.$(OBJEXT) \
+	Convergance.$(OBJEXT) Discretizer.$(OBJEXT) \
+	CentreIException.$(OBJEXT) \
+	EntropyCalculator.$(OBJEXT) \
+	EntropyScorer.$(OBJEXT) \
+	Netcdf_EntContri.$(OBJEXT) \
+	Netcdf_HistUtils.$(OBJEXT) \
+	Real2Int.$(OBJEXT) Utils.$(OBJEXT) \
+	main_common.$(OBJEXT) main_smp.$(OBJEXT)
 centre_OMP_OBJECTS = $(am_centre_OMP_OBJECTS)
 centre_OMP_LDADD = $(LDADD)
 centre_OMP_DEPENDENCIES =
@@ -144,19 +144,19 @@ am__centre_OMPMPI_SOURCES_DIST = Centre.cpp main_common.h \
 	EntropyCalculator_mpi.cpp EntropyScorer.cpp \
 	Netcdf_EntContri.cpp Netcdf_HistUtils.cpp Real2Int.cpp \
 	Utils.cpp main_common.cpp main_mpi.cpp
-am_centre_OMPMPI_OBJECTS = Centre.$(OBJEXT) \
-	Netcdf_BAT.$(OBJEXT) NetcdfFile.$(OBJEXT) \
-	Netcdf_TrjInt.$(OBJEXT) Estimators.$(OBJEXT) \
-	Inputs.$(OBJEXT) CentreStdio.$(OBJEXT) \
-	Convergance.$(OBJEXT) \
-	CentreIException.$(OBJEXT) \
-	Discretizer_mpi.$(OBJEXT) \
-	EntropyCalculator_mpi.$(OBJEXT) \
-	EntropyScorer.$(OBJEXT) \
-	Netcdf_EntContri.$(OBJEXT) \
-	Netcdf_HistUtils.$(OBJEXT) Real2Int.$(OBJEXT) \
-	Utils.$(OBJEXT) main_common.$(OBJEXT) \
-	main_mpi.$(OBJEXT)
+#am_centre_OMPMPI_OBJECTS = Centre.$(OBJEXT) \
+#	Netcdf_BAT.$(OBJEXT) NetcdfFile.$(OBJEXT) \
+#	Netcdf_TrjInt.$(OBJEXT) Estimators.$(OBJEXT) \
+#	Inputs.$(OBJEXT) CentreStdio.$(OBJEXT) \
+#	Convergance.$(OBJEXT) \
+#	CentreIException.$(OBJEXT) \
+#	Discretizer_mpi.$(OBJEXT) \
+#	EntropyCalculator_mpi.$(OBJEXT) \
+#	EntropyScorer.$(OBJEXT) \
+#	Netcdf_EntContri.$(OBJEXT) \
+#	Netcdf_HistUtils.$(OBJEXT) Real2Int.$(OBJEXT) \
+#	Utils.$(OBJEXT) main_common.$(OBJEXT) \
+#	main_mpi.$(OBJEXT)
 centre_OMPMPI_OBJECTS = $(am_centre_OMPMPI_OBJECTS)
 centre_OMPMPI_LDADD = $(LDADD)
 centre_OMPMPI_DEPENDENCIES =
@@ -244,31 +244,31 @@ CTAGS = ctags
 am__DIST_COMMON = $(srcdir)/Makefile.in \
 	$(top_srcdir)/build-aux/depcomp
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
-ACLOCAL = ${SHELL} /Users/delphicpp/git-repos-spanday/centre/build-aux/missing aclocal-1.16
+ACLOCAL = ${SHELL} /home/spanday/softwares/programs/centre-20.10.11/build-aux/missing aclocal-1.16
 AMTAR = $${TAR-tar}
-AM_CXXFLAGS =   -I/usr/local/include -Ofast -fmessage-length=0  -fPIC 
+AM_CXXFLAGS = -fopenmp  -I/usr/local/include -Ofast -fmessage-length=0 -fPIC 
 AM_DEFAULT_VERBOSITY = 1
 AM_LDFLAGS =  -L/usr/local/lib
-AUTOCONF = ${SHELL} /Users/delphicpp/git-repos-spanday/centre/build-aux/missing autoconf
-AUTOHEADER = ${SHELL} /Users/delphicpp/git-repos-spanday/centre/build-aux/missing autoheader
-AUTOMAKE = ${SHELL} /Users/delphicpp/git-repos-spanday/centre/build-aux/missing automake-1.16
-AWK = awk
+AUTOCONF = ${SHELL} /home/spanday/softwares/programs/centre-20.10.11/build-aux/missing autoconf
+AUTOHEADER = ${SHELL} /home/spanday/softwares/programs/centre-20.10.11/build-aux/missing autoheader
+AUTOMAKE = ${SHELL} /home/spanday/softwares/programs/centre-20.10.11/build-aux/missing automake-1.16
+AWK = gawk
 CPPFLAGS = 
-CXX = mpic++ -std=gnu++11
-CXXCPP = mpic++ -std=gnu++11 -E
+CXX = /software/spackages/linux-centos8-x86_64/gcc-8.3.1/gcc-8.2.0-qmfl2difzqhznohr7rcwwb23cwqitalu/bin/g++ -std=gnu++11
+CXXCPP = /software/spackages/linux-centos8-x86_64/gcc-8.3.1/gcc-8.2.0-qmfl2difzqhznohr7rcwwb23cwqitalu/bin/g++ -std=gnu++11 -E
 CXXDEPMODE = depmode=gcc3
-CXXFLAGS =  -I/usr/local/include -Ofast -fmessage-length=0  -fPIC 
+CXXFLAGS =  -I/usr/local/include -Ofast -fmessage-length=0 -fPIC 
 CYGPATH_W = echo
 DEFS = -DHAVE_CONFIG_H
 DEPDIR = .deps
-ECHO_C = \c
-ECHO_N = 
+ECHO_C = 
+ECHO_N = -n
 ECHO_T = 
-EGREP = /usr/local/bin/ggrep -E
+EGREP = /bin/grep -E
 EXEEXT = 
-GREP = /usr/local/bin/ggrep
+GREP = /bin/grep
 HAVE_CXX11 = 1
-INSTALL = /usr/bin/install -c
+INSTALL = /bin/install -c
 INSTALL_DATA = ${INSTALL} -m 644
 INSTALL_PROGRAM = ${INSTALL}
 INSTALL_SCRIPT = ${INSTALL}
@@ -277,10 +277,10 @@ LDFLAGS =  -L/usr/local/lib
 LIBOBJS = 
 LIBS = -lnetcdf -lnetcdf 
 LTLIBOBJS = 
-MAKEINFO = ${SHELL} /Users/delphicpp/git-repos-spanday/centre/build-aux/missing makeinfo
-MKDIR_P = ../build-aux/install-sh -c -d
+MAKEINFO = ${SHELL} /home/spanday/softwares/programs/centre-20.10.11/build-aux/missing makeinfo
+MKDIR_P = /bin/mkdir -p
 OBJEXT = o
-OPENMP_CXXFLAGS = 
+OPENMP_CXXFLAGS = -fopenmp
 PACKAGE = centre
 PACKAGE_BUGREPORT = shaileshp51@gmail.com
 PACKAGE_NAME = centre
@@ -293,10 +293,10 @@ SET_MAKE =
 SHELL = /bin/sh
 STRIP = 
 VERSION = 0.1.1
-abs_builddir = /Users/delphicpp/git-repos-spanday/centre/src
-abs_srcdir = /Users/delphicpp/git-repos-spanday/centre/src
-abs_top_builddir = /Users/delphicpp/git-repos-spanday/centre
-abs_top_srcdir = /Users/delphicpp/git-repos-spanday/centre
+abs_builddir = /home/spanday/softwares/programs/centre-20.10.11/src
+abs_srcdir = /home/spanday/softwares/programs/centre-20.10.11/src
+abs_top_builddir = /home/spanday/softwares/programs/centre-20.10.11
+abs_top_srcdir = /home/spanday/softwares/programs/centre-20.10.11
 ac_ct_CXX = 
 am__include = include
 am__leading_dot = .
@@ -304,26 +304,26 @@ am__quote =
 am__tar = $${TAR-tar} chof - "$$tardir"
 am__untar = $${TAR-tar} xf -
 bindir = ${exec_prefix}/bin
-build = x86_64-apple-darwin19.6.0
+build = x86_64-pc-linux-gnu
 build_alias = 
 build_cpu = x86_64
-build_os = darwin19.6.0
-build_vendor = apple
+build_os = linux-gnu
+build_vendor = pc
 builddir = .
 datadir = ${datarootdir}
 datarootdir = ${prefix}/share
 docdir = ${datarootdir}/doc/${PACKAGE_TARNAME}
 dvidir = ${docdir}
 exec_prefix = ${prefix}
-host = x86_64-apple-darwin19.6.0
+host = x86_64-pc-linux-gnu
 host_alias = 
 host_cpu = x86_64
-host_os = darwin19.6.0
-host_vendor = apple
+host_os = linux-gnu
+host_vendor = pc
 htmldir = ${docdir}
 includedir = ${prefix}/include
 infodir = ${datarootdir}/info
-install_sh = ${SHELL} /Users/delphicpp/git-repos-spanday/centre/build-aux/install-sh
+install_sh = ${SHELL} /home/spanday/softwares/programs/centre-20.10.11/build-aux/install-sh
 libdir = ${exec_prefix}/lib
 libexecdir = ${exec_prefix}/libexec
 localedir = ${datarootdir}/locale
@@ -332,7 +332,7 @@ mandir = ${datarootdir}/man
 mkdir_p = $(MKDIR_P)
 oldincludedir = /usr/include
 pdfdir = ${docdir}
-prefix = /Users/delphicpp/git-repos-spanday/centre
+prefix = /home/spanday/softwares/programs/centre-20.10.11
 program_transform_name = s,x,x,
 psdir = ${docdir}
 sbindir = ${exec_prefix}/sbin
@@ -343,46 +343,46 @@ target_alias =
 top_build_prefix = ../
 top_builddir = ..
 top_srcdir = ..
-#LDADD = -lnetcdf
 LDADD = -lnetcdf
-centre_OMPMPI_SOURCES = Centre.cpp main_common.h \
-	macrologger/macrologger.h CentreStdio.h \
-	Convergence.h Netcdf_EntContri.h \
-	Netcdf_HistUtils.h Real2Int.h Utils.h \
-	configcentre.h CoordinateInfo.h \
-	Netcdf_BAT.cpp NetcdfFile.cpp \
-	Netcdf_TrjInt.cpp Version.h Centre.h \
-	Constants.h Inputs.h MpiCommTags.h \
-	Estimators.cpp Inputs.cpp Netcdf_BAT.h \
-	NetcdfFile.h Netcdf_TrjInt.h Timer.h \
-	CentreStdio.cpp Convergance.cpp Estimators.h \
-	CentreIException.h CentreIException.cpp \
-	Discretizer.h Exceptions.h \
-	EntropyCalculator.h EntropyScorer.h \
-	Discretizer_mpi.cpp EntropyCalculator_mpi.cpp \
-	EntropyScorer.cpp EntropyScorer.h Inputs.h \
-	Netcdf_EntContri.cpp Netcdf_HistUtils.cpp \
-	Real2Int.cpp Utils.cpp main_common.cpp \
-	main_mpi.cpp
-#centre_OMP_SOURCES = Centre.cpp \
-#	macrologger/macrologger.h main_common.h \
-#	CentreStdio.h Convergence.h \
-#	Netcdf_EntContri.h Netcdf_HistUtils.h \
-#	Real2Int.h Utils.h configcentre.h \
-#	CoordinateInfo.h Netcdf_BAT.cpp \
-#	NetcdfFile.cpp Netcdf_TrjInt.cpp Version.h \
-#	Centre.h Inputs.h Constants.h Estimators.cpp \
-#	Inputs.cpp Netcdf_BAT.h NetcdfFile.h \
-#	Netcdf_TrjInt.h Timer.h CentreStdio.cpp \
-#	Convergance.cpp Estimators.h Inputs.h \
-#	CentreIException.h Discretizer.h \
+#LDADD = -lnetcdf
+#centre_OMPMPI_SOURCES = Centre.cpp main_common.h \
+#	macrologger/macrologger.h CentreStdio.h \
+#	Convergence.h Netcdf_EntContri.h \
+#	Netcdf_HistUtils.h Real2Int.h Utils.h \
+#	configcentre.h CoordinateInfo.h \
+#	Netcdf_BAT.cpp NetcdfFile.cpp \
+#	Netcdf_TrjInt.cpp Version.h Centre.h \
+#	Constants.h Inputs.h MpiCommTags.h \
+#	Estimators.cpp Inputs.cpp Netcdf_BAT.h \
+#	NetcdfFile.h Netcdf_TrjInt.h Timer.h \
+#	CentreStdio.cpp Convergance.cpp Estimators.h \
+#	CentreIException.h CentreIException.cpp \
+#	Discretizer.h Exceptions.h \
 #	EntropyCalculator.h EntropyScorer.h \
-#	Discretizer.cpp CentreIException.cpp \
-#	Exceptions.h EntropyCalculator.cpp \
-#	EntropyScorer.cpp EntropyScorer.h \
+#	Discretizer_mpi.cpp EntropyCalculator_mpi.cpp \
+#	EntropyScorer.cpp EntropyScorer.h Inputs.h \
 #	Netcdf_EntContri.cpp Netcdf_HistUtils.cpp \
 #	Real2Int.cpp Utils.cpp main_common.cpp \
-#	main_smp.cpp
+#	main_mpi.cpp
+centre_OMP_SOURCES = Centre.cpp \
+	macrologger/macrologger.h main_common.h \
+	CentreStdio.h Convergence.h \
+	Netcdf_EntContri.h Netcdf_HistUtils.h \
+	Real2Int.h Utils.h configcentre.h \
+	CoordinateInfo.h Netcdf_BAT.cpp \
+	NetcdfFile.cpp Netcdf_TrjInt.cpp Version.h \
+	Centre.h Inputs.h Constants.h Estimators.cpp \
+	Inputs.cpp Netcdf_BAT.h NetcdfFile.h \
+	Netcdf_TrjInt.h Timer.h CentreStdio.cpp \
+	Convergance.cpp Estimators.h Inputs.h \
+	CentreIException.h Discretizer.h \
+	EntropyCalculator.h EntropyScorer.h \
+	Discretizer.cpp CentreIException.cpp \
+	Exceptions.h EntropyCalculator.cpp \
+	EntropyScorer.cpp EntropyScorer.h \
+	Netcdf_EntContri.cpp Netcdf_HistUtils.cpp \
+	Real2Int.cpp Utils.cpp main_common.cpp \
+	main_smp.cpp
 all: all-am
 
 .SUFFIXES:
