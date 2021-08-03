@@ -43,6 +43,34 @@ cd centre-0.1.0
 
 On LINUX
 --------
+Check the location of netcdf include and library file. In some of the Linux
+Distributions, these files are no longer installed in default locations i.e.
+/usr/local/include and /usr/local/bin respectively. However, the configuration 
+searches for them in default location and fails. In such a case, try finding
+the locations of these files using command:
+
+```
+nc-config --all
+```
+It should print the detials of netcdf configuration on your system as below:
+```
+This netCDF 4.7.3 has been built with the following features: 
+
+  --cc            -> /usr/bin/cc
+  --cflags        -> -I/usr/include -I/usr/include/hdf5/serial
+  --libs          -> -L/usr/lib/x86_64-linux-gnu -L/usr/lib/x86_64-linux-gnu/hdf5/serial -lnetcdf
+  --static        -> -lhdf5_hl -lhdf5 -lpthread -lsz -lz -ldl -lm -lcurl
+  
+  ... many more lines
+```
+As above we see the include files are are in /usr/include and lib file in
+/usr/lib/x86_64-linux-gnu. If so is the case please add
+
+```
+LDFLAGS="-L/usr/lib/x86_64-linux-gnu"
+```
+after --prefix option on on the ./configure command below.
+
 Do an OpenMP thread based parallel build
 ```
 ./configure --prefix=`pwd`
