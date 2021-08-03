@@ -1,3 +1,5 @@
+03 Aug 2020 13:00
+-- Fixed a bug causing no histogram file writing for some options
 29 Sep 2020 12:35
 -- Updated sample file parameter descriptions
 -- Update data-caching code for columns in case of 2D mutual information for MPI

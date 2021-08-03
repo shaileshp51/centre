@@ -17,11 +17,13 @@ void EntropyCalculator::run1d(BAT_t bat_type, int num_threads)
 	std::string d1DHistFileName;
 	Netcdf_EntContri *ent_dim1d;
 	std::string ent_dim1dFileName;
+	BATSet curr_batset = BATSet::NOTHING;
 
 	switch (bat_type)
 	{
 	case BAT_t::BOND:
 		ptaskset = &(progressstate.entc_b1d);
+		curr_batset = BATSet::B1D;
 		str_dim_type.assign("B");
 		n_dim_eff = n_bnd_eff;
 		intD1DTrajFileName.assign("bin_bonds.nc");
@@ -30,6 +32,7 @@ void EntropyCalculator::run1d(BAT_t bat_type, int num_threads)
 		break;
 	case BAT_t::ANGLE:
 		ptaskset = &(progressstate.entc_a1d);
+		curr_batset = BATSet::A1D;
 		str_dim_type.assign("A");
 		n_dim_eff = n_ang_eff;
 		intD1DTrajFileName.assign("bin_angles.nc");
@@ -38,6 +41,7 @@ void EntropyCalculator::run1d(BAT_t bat_type, int num_threads)
 		break;
 	case BAT_t::DIHEDRAL:
 		ptaskset = &(progressstate.entc_d1d);
+		curr_batset = BATSet::D1D;
 		str_dim_type.assign("D");
 		n_dim_eff = n_dih_eff;
 		intD1DTrajFileName.assign("bin_torsions.nc");
@@ -81,7 +85,7 @@ void EntropyCalculator::run1d(BAT_t bat_type, int num_threads)
 
 	ull_int nfrm_eff_entropy = 0;
 
-	if (isWritefreq && (frqWriteset & bat_type))
+	if (isWritefreq && (frqWriteset & curr_batset))
 	{
 		d1DHist->NC_create((str_dim_type + string("-1D histograms")).c_str());
 	}
@@ -199,7 +203,7 @@ void EntropyCalculator::run1d(BAT_t bat_type, int num_threads)
 		ptaskset->curr_comm += ClockResolution(_durcomm2);
 		progressstate.entc.curr_comm += ClockResolution(_durcomm2);
 
-		if (isWritefreq && (frqWriteset & bat_type))
+		if (isWritefreq && (frqWriteset & curr_batset))
 		{
 			if (d1DHist->writeRecords(bingrp_v) != 0)
 			{
@@ -568,7 +572,7 @@ void EntropyCalculator::run2d_xx(BATSet dim_type, int num_threads)
 								bb_extrm[xx] = dtyps1_extrm_v[rno][xx];
 								bb_extrm[xx + 4] = bnds2_extrm_v[cno][xx];
 							}
-							if (isWritefreq && (frqWriteset & BATSet::BB2D))
+							if (isWritefreq && (frqWriteset & dim_type))
 							{
 								bingrp_v[idx].setId(0, 2, dim_ids);
 								bingrp_v[idx].setExtremes(bb_extrm);
@@ -602,7 +606,7 @@ void EntropyCalculator::run2d_xx(BATSet dim_type, int num_threads)
 				progressstate.entc.curr_comm += ClockResolution(
 					_durcomm2);
 
-				if (isWritefreq && (frqWriteset & BATSet::BB2D))
+				if (isWritefreq && (frqWriteset & dim_type))
 				{
 					if (xx2DHist->writeRecords(bingrp_v) != 0)
 					{
@@ -986,7 +990,7 @@ void EntropyCalculator::run2d_xy(BATSet dim_type, int num_threads)
 								ad_extrm[xx] = dtyps1_extrm_v[rno][xx];
 								ad_extrm[xx + 4] = dtyps2_extrm_v[cno][xx];
 							}
-							if (isWritefreq && (frqWriteset & BATSet::AD2D))
+							if (isWritefreq && (frqWriteset & dim_type))
 							{
 								bingrp_v[idx].setId(0, 2, dim_ids);
 								bingrp_v[idx].setExtremes(ad_extrm);
@@ -1020,7 +1024,7 @@ void EntropyCalculator::run2d_xy(BATSet dim_type, int num_threads)
 				progressstate.entc.curr_comm += ClockResolution(
 					_durcomm2);
 
-				if (isWritefreq && (frqWriteset & BATSet::AD2D))
+				if (isWritefreq && (frqWriteset & dim_type))
 				{
 					if (xy2DHist->writeRecords(bingrp_v) != 0)
 					{

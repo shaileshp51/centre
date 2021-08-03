@@ -1,6 +1,6 @@
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.62)
-AC_INIT([centre], [0.1.1], [shaileshp51@gmail.com])
+AC_INIT([centre], [0.1.3], [shaileshp51@gmail.com])
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_AUX_DIR([build-aux])
 

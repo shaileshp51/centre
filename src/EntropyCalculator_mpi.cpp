@@ -1405,7 +1405,7 @@ void EntropyCalculator::run2d_xx_mpi(BATSet dim_type, const int rank,
 				if (master_tasks > 0)
 				{
 					auto _strtwrt = Clock::now();
-					if (isWritefreq && (frqWriteset & BATSet::BB2D))
+					if (isWritefreq && (frqWriteset & dim_type))
 					{
 						if (ptr_hist_xx2d->writeRecords(bingrp_v_master) != 0)
 						{
@@ -2537,7 +2537,7 @@ void EntropyCalculator::run2d_xy_mpi(BATSet dim_type, const int rank,
 				if (master_tasks > 0)
 				{
 					auto _strtwrt = Clock::now();
-					if (isWritefreq && (frqWriteset & BATSet::BB2D))
+					if (isWritefreq && (frqWriteset & dim_type))
 					{
 						if (xy2DHist->writeRecords(bingrp_v_master) != 0)
 						{
