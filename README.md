@@ -45,7 +45,7 @@ On LINUX
 --------
 Check the location of netcdf include and library file. In some of the Linux
 Distributions, these files are no longer installed in default locations i.e.
-/usr/local/include and /usr/local/bin respectively. However, the configuration 
+/usr/local/include and /usr/local/lib respectively. However, the configuration 
 searches for them in default location and fails. In such a case, try finding
 the locations of these files using command:
 
