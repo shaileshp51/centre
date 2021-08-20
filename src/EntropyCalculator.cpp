@@ -173,7 +173,7 @@ void EntropyCalculator::run1d(BAT_t bat_type, int num_threads)
 
 				const u_int dim_id = inputs.getSubset().getBATTypeId(bat_type,
 																	 did);
-				if (isWritefreq && (frqWriteset & BATSet::B1D))
+				if (isWritefreq && (frqWriteset & curr_batset))
 				{
 					bingrp_v[idx].setId(dim_id);
 					bingrp_v[idx].setExtremes(d1ds_extrm_v[idx]);

@@ -153,7 +153,7 @@ void EntropyCalculator::run1d_mpi(BAT_t bat_type, const int rank,
 			bl_details[1] = block_tasks;
 			bl_details[2] = curr_cache_per_proc;
 			bl_details[3] = max_slave_rank;
-			
+
 
 			auto _startcommb = Clock::now();
 			MPI_Bcast(&bl_details, 4, MPI_INT, MASTER_PROC, MPI_COMM_WORLD);
@@ -813,7 +813,7 @@ void EntropyCalculator::run2d_xx_mpi(BATSet dim_type, const int rank,
 		ptr_ent_xx2d->NC_create(str_dim_type + " 2-D Entropy contributions");
 
 		vector<u_int> block_boundry(5);
-		
+
 		const u_int num_dim_neigh_keys = dim_neigh_keys.size();
 
 		int chache_dims_per_proc = cache_entc_dims_per_cpu * n_thread_perproc / 2;
